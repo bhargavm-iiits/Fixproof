@@ -120,6 +120,16 @@ class RetrievalResult(BaseModel):
     query: str
     chunks: tuple[KnowledgeChunk, ...] = ()
     token_estimate: int = Field(default=0, ge=0)
+    ranked_chunk_ids: tuple[str, ...] = ()
+    """What BM25 ranked into the top k on its own, before anything was forced in.
+
+    Recall is measured against this, not against the final chunk list, or the
+    forced inclusions would make the number 1.0 by construction.
+    """
+
+    @property
+    def source_paths(self) -> tuple[str, ...]:
+        return tuple(sorted({chunk.source_path for chunk in self.chunks}))
 
 
 class ProposedPatch(BaseModel):

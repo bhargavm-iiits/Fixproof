@@ -16,6 +16,7 @@ project, so this exits non-zero on the first fixture that cannot be proven.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import shutil
 import subprocess
@@ -149,7 +150,9 @@ def validate(directory: Path) -> Report:
         # 1. The clean suite is green.
         code, failures, output = failing_node_ids(workspace)
         if code != 0:
-            report.problems.append(f"the clean target suite is not green: {failures or output[-400:]}")
+            report.problems.append(
+                f"the clean target suite is not green: {failures or output[-400:]}"
+            )
             return report
 
         # 2. break.patch fails exactly the named test.
@@ -208,10 +211,8 @@ def main() -> int:
     valid = sum(1 for report in reports if report.ok)
     categories = set()
     for directory in directories:
-        try:
+        with contextlib.suppress(Exception):
             categories.add(json.loads((directory / "defect.json").read_text())["category"])
-        except Exception:  # noqa: BLE001, S110 - counted below, not hidden
-            pass
 
     print(f"\n{valid}/{len(reports)} valid in {args.fixture_set}; {len(categories)} categories")
 

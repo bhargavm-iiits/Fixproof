@@ -138,7 +138,10 @@ SPECS: tuple[Spec, ...] = (
                 "counts: dict[Any, int] | None = None) -> dict[Any, int]:",
                 "counts: dict[Any, int] = {}) -> dict[Any, int]:",
             ),
-            ("    if counts is None:\n        counts = {}\n    for row in rows:", "    for row in rows:"),
+            (
+                "    if counts is None:\n        counts = {}\n    for row in rows:",
+                "    for row in rows:",
+            ),
         ),
         failing_test="tests/test_tabular.py::test_tally_calls_do_not_share_state",
         summary=(
@@ -570,7 +573,9 @@ def build(spec: Spec) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--set", dest="fixture_set", choices=("dev", "holdout", "all"), default="all")
+    parser.add_argument(
+        "--set", dest="fixture_set", choices=("dev", "holdout", "all"), default="all"
+    )
     parser.add_argument(
         "--clean", action="store_true", help="remove the existing fixture directories first"
     )

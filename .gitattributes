@@ -1,0 +1,6 @@
+# The verifier runs Linux containers and git apply is sensitive to line endings.
+# Everything in this repository is LF in the working tree, on every platform.
+* text=auto eol=lf
+
+# Patches are byte-exact inputs to `git apply`. Never rewrite them.
+*.patch -text
