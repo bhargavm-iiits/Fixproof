@@ -1,0 +1,11 @@
+--- a/paging.py
++++ b/paging.py
+@@ -65,7 +65,7 @@
+     """Yield every page in order. An empty sequence yields nothing at all."""
+     if limit < 1:
+         raise ValueError("limit must be at least 1")
+-    for start in range(0, len(rows) - 1, limit):
++    for start in range(0, len(rows), limit):
+         yield list(rows[start : start + limit])
+ 
+ 

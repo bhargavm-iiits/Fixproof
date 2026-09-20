@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-regex_greedy-001",
+  "fixture_set": "dev",
+  "summary": "Runs of punctuation are no longer collapsed into a single separator, so slugs gain one separator per discarded character.",
+  "failing_test": "tests/test_slugs.py::test_slugify_collapses_runs_of_punctuation",
+  "allowed_paths": [
+    "slugs.py"
+  ],
+  "category": "regex_greedy",
+  "difficulty": "easy"
+}

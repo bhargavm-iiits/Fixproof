@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-inverted_condition-001",
+  "fixture_set": "holdout",
+  "summary": "Dropping columns keeps exactly the columns it was asked to remove.",
+  "failing_test": "tests/test_tabular.py::test_drop_removes_the_named_columns",
+  "allowed_paths": [
+    "tabular.py"
+  ],
+  "category": "inverted_condition",
+  "difficulty": "easy"
+}

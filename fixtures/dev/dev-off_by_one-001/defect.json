@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-off_by_one-001",
+  "fixture_set": "dev",
+  "summary": "The number of pages is reported as one too many whenever the row count divides exactly by the page size.",
+  "failing_test": "tests/test_paging.py::test_page_count_for_an_exact_multiple",
+  "allowed_paths": [
+    "paging.py"
+  ],
+  "category": "off_by_one",
+  "difficulty": "easy"
+}

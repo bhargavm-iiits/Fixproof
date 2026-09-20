@@ -1,0 +1,11 @@
+--- a/ratelimit.py
++++ b/ratelimit.py
+@@ -64,7 +64,7 @@
+         return 0.0
+     if filled.refill_per_second == 0:
+         return float("inf")
+-    return (cost - filled.tokens) * filled.refill_per_second
++    return (cost - filled.tokens) / filled.refill_per_second
+ 
+ 
+ def drain(bucket: Bucket, now: float, requests: int, cost: float = 1.0) -> tuple[Bucket, int]:

@@ -1,0 +1,11 @@
+--- a/tabular.py
++++ b/tabular.py
+@@ -73,7 +73,7 @@
+ 
+ def _apply(name: str, values: list[Any], places: int) -> Any:
+     if name == "count":
+-        return len(values)
++        return len([value for value in values if value is not None])
+     if name == "first":
+         return values[0] if values else None
+     if name == "last":

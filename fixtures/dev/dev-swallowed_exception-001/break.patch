@@ -1,0 +1,10 @@
+--- a/parsing.py
++++ b/parsing.py
+@@ -106,6 +106,6 @@
+     for text in texts:
+         try:
+             values.append(parser(text))
+-        except ParseError as error:
++        except Exception as error:
+             errors.append(str(error))
+     return values, errors

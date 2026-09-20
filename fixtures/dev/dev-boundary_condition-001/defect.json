@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-boundary_condition-001",
+  "fixture_set": "dev",
+  "summary": "The retry limit permits one more attempt than it should: reaching the limit is treated as still being below it.",
+  "failing_test": "tests/test_retry.py::test_retry_stops_at_the_attempt_limit",
+  "allowed_paths": [
+    "retry.py"
+  ],
+  "category": "boundary_condition",
+  "difficulty": "easy"
+}

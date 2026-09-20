@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-none_handling-001",
+  "fixture_set": "dev",
+  "summary": "A field that is present but holds no value is treated as present, so empty values are sorted rather than grouped.",
+  "failing_test": "tests/test_sorting.py::test_is_missing_for_a_none_value",
+  "allowed_paths": [
+    "sorting.py"
+  ],
+  "category": "none_handling",
+  "difficulty": "easy"
+}

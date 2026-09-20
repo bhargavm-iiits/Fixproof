@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic>=2,<3
+pydantic-settings
+google-genai
+rank-bm25
+httpx
+pytest
+pytest-timeout
+ruff

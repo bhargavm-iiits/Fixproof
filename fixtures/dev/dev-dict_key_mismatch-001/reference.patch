@@ -1,0 +1,11 @@
+--- a/tabular.py
++++ b/tabular.py
+@@ -61,7 +61,7 @@
+     summary: dict[str, Any] = {
+         "column": column,
+         "count": len(present),
+-        "null_count": len(rows) - len(present),
++        "nulls": len(rows) - len(present),
+     }
+     if numbers:
+         summary["sum"] = round(sum(numbers), places)

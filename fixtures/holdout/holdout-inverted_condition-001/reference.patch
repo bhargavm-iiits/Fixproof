@@ -1,0 +1,11 @@
+--- a/tabular.py
++++ b/tabular.py
+@@ -40,7 +40,7 @@
+     """Remove `columns`, keeping the rest in their original order."""
+     require_columns(rows, columns)
+     unwanted = set(columns)
+-    return [{key: value for key, value in row.items() if key in unwanted} for row in rows]
++    return [{key: value for key, value in row.items() if key not in unwanted} for row in rows]
+ 
+ 
+ def rename(rows: list[Row], mapping: dict[str, str]) -> list[Row]:

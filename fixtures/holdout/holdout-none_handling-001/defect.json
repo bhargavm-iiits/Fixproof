@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-none_handling-001",
+  "fixture_set": "holdout",
+  "summary": "Grouped counts include missing values instead of ignoring them.",
+  "failing_test": "tests/test_tabular.py::test_aggregate_counts_ignore_nulls",
+  "allowed_paths": [
+    "tabular.py"
+  ],
+  "category": "none_handling",
+  "difficulty": "easy"
+}

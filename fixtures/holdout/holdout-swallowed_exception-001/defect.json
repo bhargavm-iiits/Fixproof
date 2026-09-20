@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-swallowed_exception-001",
+  "fixture_set": "holdout",
+  "summary": "An unrecognised duration unit is skipped instead of rejected, so bad input parses to a confidently wrong number.",
+  "failing_test": "tests/test_parsing.py::test_parse_duration_rejects_an_unknown_unit",
+  "allowed_paths": [
+    "parsing.py"
+  ],
+  "category": "swallowed_exception",
+  "difficulty": "medium"
+}

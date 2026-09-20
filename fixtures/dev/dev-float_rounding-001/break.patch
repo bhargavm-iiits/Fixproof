@@ -1,0 +1,11 @@
+--- a/diffstat.py
++++ b/diffstat.py
+@@ -85,7 +85,7 @@
+     return summary
+ 
+ 
+-def percent_added(summary: Summary, places: int = 1) -> float:
++def percent_added(summary: Summary, places: int = 0) -> float:
+     """Added lines as a percentage of churn, rounded to `places`."""
+     if summary.churn == 0:
+         return 0.0

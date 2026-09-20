@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-wrong_operator-001",
+  "fixture_set": "holdout",
+  "summary": "The wait for more tokens is computed by multiplying by the refill rate rather than dividing by it.",
+  "failing_test": "tests/test_ratelimit.py::test_time_until_counts_the_shortfall",
+  "allowed_paths": [
+    "ratelimit.py"
+  ],
+  "category": "wrong_operator",
+  "difficulty": "easy"
+}

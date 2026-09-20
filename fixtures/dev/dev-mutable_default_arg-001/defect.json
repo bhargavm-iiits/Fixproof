@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-mutable_default_arg-001",
+  "fixture_set": "dev",
+  "summary": "Counts leak between calls: a second call without an explicit counter sees the totals accumulated by the first.",
+  "failing_test": "tests/test_tabular.py::test_tally_calls_do_not_share_state",
+  "allowed_paths": [
+    "tabular.py"
+  ],
+  "category": "mutable_default_arg",
+  "difficulty": "medium"
+}

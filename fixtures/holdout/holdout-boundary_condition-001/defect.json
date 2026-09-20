@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-boundary_condition-001",
+  "fixture_set": "holdout",
+  "summary": "An attempt that would exactly consume the remaining budget is rejected, so the budget is under-used by one attempt.",
+  "failing_test": "tests/test_retry.py::test_attempts_within_a_generous_budget",
+  "allowed_paths": [
+    "retry.py"
+  ],
+  "category": "boundary_condition",
+  "difficulty": "easy"
+}

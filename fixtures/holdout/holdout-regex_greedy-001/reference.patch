@@ -1,0 +1,11 @@
+--- a/csvclean.py
++++ b/csvclean.py
+@@ -5,7 +5,7 @@
+ import re
+ from typing import Any
+ 
+-NON_WORD = re.compile(r"[^a-z0-9]+?")
++NON_WORD = re.compile(r"[^a-z0-9]+")
+ EDGE_UNDERSCORES = re.compile(r"^_+|_+$")
+ INTEGER = re.compile(r"^[+-]?\d+$")
+ DECIMAL = re.compile(r"^[+-]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?$")

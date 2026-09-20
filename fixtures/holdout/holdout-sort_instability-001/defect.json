@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-sort_instability-001",
+  "fixture_set": "holdout",
+  "summary": "Only the first sort key is ever applied, so rows tied on it keep their input order instead of being ordered by the remaining keys.",
+  "failing_test": "tests/test_sorting.py::test_multikey_sort_applies_the_first_key_first",
+  "allowed_paths": [
+    "sorting.py"
+  ],
+  "category": "sort_instability",
+  "difficulty": "easy"
+}

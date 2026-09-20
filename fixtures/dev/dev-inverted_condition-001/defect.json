@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-inverted_condition-001",
+  "fixture_set": "dev",
+  "summary": "The largest-file search returns the smallest file instead of the largest.",
+  "failing_test": "tests/test_diffstat.py::test_largest_file_is_the_one_with_most_churn",
+  "allowed_paths": [
+    "diffstat.py"
+  ],
+  "category": "inverted_condition",
+  "difficulty": "easy"
+}

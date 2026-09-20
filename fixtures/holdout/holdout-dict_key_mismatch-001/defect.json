@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-dict_key_mismatch-001",
+  "fixture_set": "holdout",
+  "summary": "The week unit is registered under a name the parser never produces, so week durations are rejected as unknown.",
+  "failing_test": "tests/test_parsing.py::test_parse_weeks",
+  "allowed_paths": [
+    "parsing.py"
+  ],
+  "category": "dict_key_mismatch",
+  "difficulty": "easy"
+}

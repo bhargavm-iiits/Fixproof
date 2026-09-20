@@ -1,0 +1,11 @@
+--- a/diffstat.py
++++ b/diffstat.py
+@@ -98,7 +98,7 @@
+         return None
+     best = summary.files[0]
+     for stat in summary.files[1:]:
+-        if stat.churn > best.churn:
++        if stat.churn < best.churn:
+             best = stat
+     return best
+ 

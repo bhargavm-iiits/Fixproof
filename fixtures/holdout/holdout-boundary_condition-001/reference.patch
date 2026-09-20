@@ -1,0 +1,11 @@
+--- a/retry.py
++++ b/retry.py
+@@ -82,7 +82,7 @@
+     attempts = 0
+     while True:
+         nxt = backoff_delay(attempts + 1, base, factor, cap)
+-        if spent + nxt >= budget_seconds:
++        if spent + nxt > budget_seconds:
+             return attempts
+         spent += nxt
+         attempts += 1

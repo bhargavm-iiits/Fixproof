@@ -1,0 +1,17 @@
+--- a/intervals.py
++++ b/intervals.py
+@@ -107,11 +107,13 @@
+     return merge(remaining)
+ 
+ 
+-def collect(intervals: list[Interval], into: list[Interval] = []) -> list[Interval]:
++def collect(intervals: list[Interval], into: list[Interval] | None = None) -> list[Interval]:
+     """Merge `intervals` into an existing list.
+ 
+     Pass `into` to accumulate across calls; omit it and each call starts empty.
+     """
++    if into is None:
++        into = []
+     into.extend(normalise(interval) for interval in intervals)
+     return merge(into)
+ 

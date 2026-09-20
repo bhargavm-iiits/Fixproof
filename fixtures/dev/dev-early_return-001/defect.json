@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-early_return-001",
+  "fixture_set": "dev",
+  "summary": "A blank entry ends the whole batch instead of being given the fallback name, so every later entry is silently dropped.",
+  "failing_test": "tests/test_slugs.py::test_slugify_all_handles_a_whitespace_entry_in_the_middle",
+  "allowed_paths": [
+    "slugs.py"
+  ],
+  "category": "early_return",
+  "difficulty": "medium"
+}

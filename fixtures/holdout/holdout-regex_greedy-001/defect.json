@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-regex_greedy-001",
+  "fixture_set": "holdout",
+  "summary": "Header names keep one separator per punctuation character instead of one per run of punctuation.",
+  "failing_test": "tests/test_csvclean.py::test_header_punctuation_collapses",
+  "allowed_paths": [
+    "csvclean.py"
+  ],
+  "category": "regex_greedy",
+  "difficulty": "easy"
+}

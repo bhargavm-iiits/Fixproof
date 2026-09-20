@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-float_rounding-001",
+  "fixture_set": "holdout",
+  "summary": "The mean ignores the requested precision and is always rounded to two decimal places.",
+  "failing_test": "tests/test_tabular.py::test_summarise_means_the_numbers",
+  "allowed_paths": [
+    "tabular.py"
+  ],
+  "category": "float_rounding",
+  "difficulty": "easy"
+}

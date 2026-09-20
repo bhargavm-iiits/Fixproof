@@ -1,0 +1,11 @@
+--- a/intervals.py
++++ b/intervals.py
+@@ -33,7 +33,7 @@
+     """True when the two intervals share at least one integer."""
+     a_start, a_end = normalise(first)
+     b_start, b_end = normalise(second)
+-    return a_start <= b_end and b_start < a_end
++    return a_start <= b_end and b_start <= a_end
+ 
+ 
+ def adjacent(first: Interval, second: Interval) -> bool:

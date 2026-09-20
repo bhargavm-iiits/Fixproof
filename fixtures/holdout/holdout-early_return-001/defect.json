@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-early_return-001",
+  "fixture_set": "holdout",
+  "summary": "Merging stops at the first gap, so everything after the first disjoint span is discarded.",
+  "failing_test": "tests/test_intervals.py::test_subtract_all_removes_every_cut",
+  "allowed_paths": [
+    "intervals.py"
+  ],
+  "category": "early_return",
+  "difficulty": "easy"
+}

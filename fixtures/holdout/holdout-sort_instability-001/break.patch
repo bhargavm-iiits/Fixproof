@@ -1,0 +1,11 @@
+--- a/sorting.py
++++ b/sorting.py
+@@ -64,7 +64,7 @@
+     most significant, so rows equal on every key keep their input order.
+     """
+     result = list(rows)
+-    for key in reversed(keys):
++    for key in reversed(keys[:1]):
+         result = sort_by(result, key)
+     return result
+ 

@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-dict_key_mismatch-001",
+  "fixture_set": "dev",
+  "summary": "The column summary publishes its missing-value count under a different name than its consumers read.",
+  "failing_test": "tests/test_tabular.py::test_summarise_counts_nulls",
+  "allowed_paths": [
+    "tabular.py"
+  ],
+  "category": "dict_key_mismatch",
+  "difficulty": "easy"
+}

@@ -1,0 +1,11 @@
+--- a/paging.py
++++ b/paging.py
+@@ -13,7 +13,7 @@
+         raise ValueError("limit must be at least 1")
+     if total <= 0:
+         return 0
+-    return (total + limit - 1) // limit
++    return (total + limit) // limit
+ 
+ 
+ def clamp_offset(offset: int, total: int) -> int:

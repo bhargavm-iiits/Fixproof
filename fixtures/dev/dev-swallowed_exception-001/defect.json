@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-swallowed_exception-001",
+  "fixture_set": "dev",
+  "summary": "Bulk parsing catches every exception rather than only parse failures, so genuine programming faults are reported as bad input.",
+  "failing_test": "tests/test_parsing.py::test_parse_many_propagates_a_non_parse_error",
+  "allowed_paths": [
+    "parsing.py"
+  ],
+  "category": "swallowed_exception",
+  "difficulty": "easy"
+}

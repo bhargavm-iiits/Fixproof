@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-wrong_operator-001",
+  "fixture_set": "dev",
+  "summary": "Two closed intervals that meet at exactly one shared endpoint are reported as not overlapping.",
+  "failing_test": "tests/test_intervals.py::test_overlaps_at_a_shared_endpoint",
+  "allowed_paths": [
+    "intervals.py"
+  ],
+  "category": "wrong_operator",
+  "difficulty": "easy"
+}

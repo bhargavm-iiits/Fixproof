@@ -1,0 +1,11 @@
+{
+  "defect_id": "holdout-off_by_one-001",
+  "fixture_set": "holdout",
+  "summary": "Iterating pages drops the final partial page.",
+  "failing_test": "tests/test_paging.py::test_iter_pages_ends_with_a_short_page",
+  "allowed_paths": [
+    "paging.py"
+  ],
+  "category": "off_by_one",
+  "difficulty": "easy"
+}

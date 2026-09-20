@@ -1,0 +1,11 @@
+{
+  "defect_id": "dev-float_rounding-001",
+  "fixture_set": "dev",
+  "summary": "Percentages are rounded to whole numbers by default instead of to one decimal place.",
+  "failing_test": "tests/test_diffstat.py::test_percent_added_rounds_to_one_place",
+  "allowed_paths": [
+    "diffstat.py"
+  ],
+  "category": "float_rounding",
+  "difficulty": "easy"
+}

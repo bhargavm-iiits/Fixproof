@@ -1,0 +1,4 @@
+# The target application is deliberately pure standard-library Python 3.12.
+# It has no runtime dependencies, and this file exists so the verifier image has
+# one authoritative place to install them from if that ever stops being true.
+# Test-only dependencies belong in docker/verifier-requirements.txt, not here.

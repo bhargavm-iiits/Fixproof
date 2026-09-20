@@ -1,0 +1,11 @@
+--- a/tabular.py
++++ b/tabular.py
+@@ -65,7 +65,7 @@
+     }
+     if numbers:
+         summary["sum"] = round(sum(numbers), places)
+-        summary["mean"] = round(sum(numbers) / len(numbers), places)
++        summary["mean"] = round(sum(numbers) / len(numbers), 2)
+         summary["min"] = min(numbers)
+         summary["max"] = max(numbers)
+     return summary

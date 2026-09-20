@@ -1,0 +1,18 @@
+--- a/tabular.py
++++ b/tabular.py
+@@ -124,14 +124,12 @@
+     return output
+ 
+ 
+-def tally(rows: list[Row], column: str, counts: dict[Any, int] | None = None) -> dict[Any, int]:
++def tally(rows: list[Row], column: str, counts: dict[Any, int] = {}) -> dict[Any, int]:
+     """Count how often each value appears in `column`.
+ 
+     Pass `counts` to accumulate into an existing tally; omit it and each call
+     starts from an empty one.
+     """
+-    if counts is None:
+-        counts = {}
+     for row in rows:
+         value = row.get(column)
+         counts[value] = counts.get(value, 0) + 1

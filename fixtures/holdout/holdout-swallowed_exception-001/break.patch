@@ -1,0 +1,16 @@
+--- a/parsing.py
++++ b/parsing.py
+@@ -64,9 +64,10 @@
+         raise ParseError(f"unrecognised duration: {text!r}")
+     total = 0
+     for amount, unit in terms:
+-        if unit not in DURATION_UNITS:
+-            raise ParseError(f"unknown duration unit: {unit!r}")
+-        total += int(amount) * DURATION_UNITS[unit]
++        try:
++            total += int(amount) * DURATION_UNITS[unit]
++        except KeyError:
++            continue
+     return total
+ 
+ 

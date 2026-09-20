@@ -1,0 +1,10 @@
+--- a/intervals.py
++++ b/intervals.py
+@@ -57,7 +57,6 @@
+             merged[-1] = (last_start, max(last_end, end))
+         else:
+             merged.append((start, end))
+-            return merged
+     return merged
+ 
+ 

@@ -1,0 +1,11 @@
+--- a/slugs.py
++++ b/slugs.py
+@@ -57,6 +57,8 @@
+     taken: set[str] = set()
+     slugs: list[str] = []
+     for text in texts:
++        if not text.strip():
++            return slugs
+         slug = unique_slug(text, taken, max_length)
+         taken.add(slug)
+         slugs.append(slug)
