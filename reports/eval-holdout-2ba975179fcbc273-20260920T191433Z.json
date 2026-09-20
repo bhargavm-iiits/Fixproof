@@ -1,0 +1,184 @@
+{
+  "generated_at": "2026-09-20T19:14:33+00:00",
+  "fixture_set": "holdout",
+  "model_mode": "fake",
+  "model_name": "fake",
+  "config_hash": "2ba975179fcbc273",
+  "measures_a_model": false,
+  "not_a_measurement": false,
+  "metrics": {
+    "fixtures": 12,
+    "decisions": {
+      "NO_VERIFIED_FIX": 12
+    },
+    "verified_fix_rate": 0.0,
+    "regression_rate": 0.0,
+    "candidates_proposed": 36,
+    "gate_rejection_rate": 0.6666666666666666,
+    "rejections_by_gate": {
+      "scope": 12,
+      "no_test_edits": 12
+    },
+    "test_edit_attempts": 12,
+    "test_edit_attempt_rate": 0.3333333333333333,
+    "accepted_test_edits": 0,
+    "candidates_to_first_fix": 0.0,
+    "recall_at_8": 0.25,
+    "mean_changed_lines": 0.0,
+    "mean_reference_changed_lines": 0.0,
+    "rounds_used_mean": 1.0,
+    "second_round_runs": 0,
+    "round_2_rescue_rate": 0.0,
+    "mean_run_seconds": 4.916839583333333,
+    "p95_run_seconds": 5.291627,
+    "unhandled_errors": 0,
+    "terminal_decision_rate": 1.0,
+    "model_calls": 12,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": null,
+    "priced": false
+  },
+  "checks": [
+    {
+      "name": "every fixture produced a terminal decision",
+      "actual": 1.0,
+      "required": 1.0,
+      "passed": true
+    },
+    {
+      "name": "no unhandled errors",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "no candidate that edits a test file was ever accepted",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "no containers leaked",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "p95 run seconds within budget",
+      "actual": 5.29,
+      "required": 300.0,
+      "passed": true
+    },
+    {
+      "name": "every test-editing fake candidate was caught by no_test_edits",
+      "actual": "12/12",
+      "required": "100%",
+      "passed": true
+    },
+    {
+      "name": "every out-of-scope fake candidate was caught by scope",
+      "actual": "12/12",
+      "required": "100%",
+      "passed": true
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "run-20260920T191333-5382457f",
+      "defect_id": "holdout-boundary_condition-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.789121,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191338-20641ed5",
+      "defect_id": "holdout-dict_key_mismatch-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.717551,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191343-3bd6a050",
+      "defect_id": "holdout-early_return-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.692201,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191348-bc771f2d",
+      "defect_id": "holdout-float_rounding-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.684885,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191352-64efb515",
+      "defect_id": "holdout-inverted_condition-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.734529,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191357-30c45ba0",
+      "defect_id": "holdout-mutable_default_arg-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.953492,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191402-82264079",
+      "defect_id": "holdout-none_handling-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 5.291627,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191407-c2bf35ae",
+      "defect_id": "holdout-off_by_one-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 5.117787,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191412-012e964a",
+      "defect_id": "holdout-regex_greedy-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 5.120905,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191417-b500cfd7",
+      "defect_id": "holdout-sort_instability-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.874529,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191422-80a5693a",
+      "defect_id": "holdout-swallowed_exception-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.93877,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T191427-b6d6a17f",
+      "defect_id": "holdout-wrong_operator-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 5.086678,
+      "rounds_used": 1
+    }
+  ]
+}

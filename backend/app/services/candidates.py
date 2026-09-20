@@ -65,14 +65,16 @@ def generate_candidates(
     feedback: list[str] | None = None,
     artifact_dir: Path | None = None,
     knowledge: KnowledgeBase | None = None,
+    retrieval: RetrievalResult | None = None,
 ) -> CandidateBatch:
-    corpus = knowledge or get_knowledge_base()
-    retrieval = corpus.retrieve(
-        defect,
-        failing_test_source=failing_test_source,
-        assertion=assertion,
-        top_k=settings.knowledge_top_k,
-    )
+    if retrieval is None:
+        corpus = knowledge or get_knowledge_base()
+        retrieval = corpus.retrieve(
+            defect,
+            failing_test_source=failing_test_source,
+            assertion=assertion,
+            top_k=settings.knowledge_top_k,
+        )
 
     if artifact_dir is not None:
         artifact_dir.mkdir(parents=True, exist_ok=True)

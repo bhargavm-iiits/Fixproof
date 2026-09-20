@@ -1,0 +1,109 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.in
+          python -m pip check
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Unit and API tests
+        run: python -m pytest backend/tests/unit backend/tests/api -q
+
+      - name: Integration tests
+        run: python -m pytest backend/tests/integration -q
+
+      - name: The generated corpus is up to date
+        run: python scripts/build_knowledge.py --check
+
+      - name: Validate the dev fixtures
+        run: python scripts/validate_fixtures.py --set dev
+
+      - name: Validate the holdout fixtures
+        run: python scripts/validate_fixtures.py --set holdout
+
+      - name: Build the verifier image
+        run: docker build -f docker/verifier.Dockerfile -t fixproof-verifier:1 .
+
+      - name: Verifier tests
+        run: python -m pytest verifier/tests -q -m docker
+
+      # No secrets in CI. `fake` mode needs none, which is most of the reason it
+      # exists: this job measures the harness, never a model.
+      - name: Dev eval and quality gate
+        env:
+          APP_MODE: local
+          MODEL_MODE: fake
+        run: python evals/run_eval.py --set dev --gate
+
+      - name: No containers leaked
+        run: |
+          leaked="$(docker ps -a --filter name=fixproof- --format '{{.Names}}')"
+          volumes="$(docker volume ls --filter name=fixproof- --format '{{.Name}}')"
+          if [ -n "$leaked" ] || [ -n "$volumes" ]; then
+            echo "leaked containers: $leaked"
+            echo "leaked volumes: $volumes"
+            exit 1
+          fi
+          echo "nothing leaked"
+
+      - name: Append the eval summary
+        if: always()
+        run: |
+          newest="$(ls -t reports/eval-dev-*.md 2>/dev/null | head -n 1 || true)"
+          if [ -n "$newest" ]; then
+            cat "$newest" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "no eval report was produced" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: reports/
+          if-no-files-found: warn
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm run build

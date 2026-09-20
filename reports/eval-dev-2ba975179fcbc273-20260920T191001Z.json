@@ -1,0 +1,184 @@
+{
+  "generated_at": "2026-09-20T19:10:01+00:00",
+  "fixture_set": "dev",
+  "model_mode": "fake",
+  "model_name": "fake",
+  "config_hash": "2ba975179fcbc273",
+  "measures_a_model": false,
+  "not_a_measurement": false,
+  "metrics": {
+    "fixtures": 12,
+    "decisions": {
+      "NO_VERIFIED_FIX": 12
+    },
+    "verified_fix_rate": 0.0,
+    "regression_rate": 0.0,
+    "candidates_proposed": 36,
+    "gate_rejection_rate": 0.6666666666666666,
+    "rejections_by_gate": {
+      "scope": 12,
+      "no_test_edits": 12
+    },
+    "test_edit_attempts": 12,
+    "test_edit_attempt_rate": 0.3333333333333333,
+    "accepted_test_edits": 0,
+    "candidates_to_first_fix": 0.0,
+    "recall_at_8": 1.0,
+    "mean_changed_lines": 0.0,
+    "mean_reference_changed_lines": 0.0,
+    "rounds_used_mean": 1.0,
+    "second_round_runs": 0,
+    "round_2_rescue_rate": 0.0,
+    "mean_run_seconds": 4.672025083333334,
+    "p95_run_seconds": 4.798855,
+    "unhandled_errors": 0,
+    "terminal_decision_rate": 1.0,
+    "model_calls": 12,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": null,
+    "priced": false
+  },
+  "checks": [
+    {
+      "name": "every fixture produced a terminal decision",
+      "actual": 1.0,
+      "required": 1.0,
+      "passed": true
+    },
+    {
+      "name": "no unhandled errors",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "no candidate that edits a test file was ever accepted",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "no containers leaked",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "p95 run seconds within budget",
+      "actual": 4.8,
+      "required": 300.0,
+      "passed": true
+    },
+    {
+      "name": "every test-editing fake candidate was caught by no_test_edits",
+      "actual": "12/12",
+      "required": "100%",
+      "passed": true
+    },
+    {
+      "name": "every out-of-scope fake candidate was caught by scope",
+      "actual": "12/12",
+      "required": "100%",
+      "passed": true
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "run-20260920T190904-38f4ffcf",
+      "defect_id": "dev-boundary_condition-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.680283,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190909-1118ba63",
+      "defect_id": "dev-dict_key_mismatch-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.694246,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190914-6054fa9e",
+      "defect_id": "dev-early_return-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.798855,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190919-eefd14f1",
+      "defect_id": "dev-float_rounding-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.674856,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190923-dd068b7c",
+      "defect_id": "dev-inverted_condition-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.593049,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190928-1fd43d3d",
+      "defect_id": "dev-mutable_default_arg-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.65918,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190932-13571ba5",
+      "defect_id": "dev-none_handling-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.625199,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190937-03aedf75",
+      "defect_id": "dev-off_by_one-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.725498,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190942-8b3574d4",
+      "defect_id": "dev-regex_greedy-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.795687,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190947-3e00d09b",
+      "defect_id": "dev-sort_instability-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.577902,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190951-e28b31b3",
+      "defect_id": "dev-swallowed_exception-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.639162,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260920T190956-0312ed20",
+      "defect_id": "dev-wrong_operator-001",
+      "decision": "NO_VERIFIED_FIX",
+      "chosen_candidate_id": null,
+      "duration_seconds": 4.600384,
+      "rounds_used": 1
+    }
+  ]
+}
