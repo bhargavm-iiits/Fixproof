@@ -3,15 +3,13 @@ import { useEffect, useRef, useState } from "react";
 /** Reveal on scroll. Returns a ref to attach and whether it has been seen. */
 export function useReveal<T extends HTMLElement>(threshold = 0.18) {
   const ref = useRef<T | null>(null);
-  const [shown, setShown] = useState(false);
+  // Without an observer there is nothing to reveal *on*, so start visible
+  // rather than flipping state from inside the effect.
+  const [shown, setShown] = useState(() => typeof IntersectionObserver === "undefined");
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setShown(true);
-      return;
-    }
+    if (!node || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {

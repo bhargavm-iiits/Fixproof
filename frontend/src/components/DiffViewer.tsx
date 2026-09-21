@@ -14,7 +14,7 @@ type Line = {
 
 const HUNK = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/;
 
-export function parseDiff(diff: string): Line[] {
+function parseDiff(diff: string): Line[] {
   const lines: Line[] = [];
   let oldNumber = 0;
   let newNumber = 0;
