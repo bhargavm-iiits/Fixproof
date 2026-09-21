@@ -10,8 +10,9 @@ The repository is prepared for a split deployment:
 1. In Render, choose **New > Blueprint** and connect the GitHub repository.
 2. Select the repository and apply `render.yaml`.
 3. Render creates `fixproof-api` with:
-   - build command: `pip install -r requirements.lock.txt`
-   - start command: `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
+   - Dockerfile: `./Dockerfile`
+   - Docker build context: repository root
+   - container command from the Dockerfile, using Render's `$PORT`
    - health check: `/healthz`
    - `APP_MODE=demo`
    - `MODEL_MODE=fake`

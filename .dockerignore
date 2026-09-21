@@ -1,7 +1,6 @@
 .git
 .venv
 runtime
-reports
 node_modules
 frontend
 **/__pycache__
