@@ -13,6 +13,17 @@ The repository contains four cooperating products:
 
 The system intentionally does not accept arbitrary repository uploads, resume interrupted runs, or verify candidates concurrently.
 
+## At a glance
+
+| Concern | Owning boundary |
+|---|---|
+| HTTP and live progress | FastAPI routes and `RunManager` |
+| Repair decision | `Orchestrator`, gates, verifier, and selection |
+| Candidate context | BM25 knowledge base and model client |
+| Durable history | SQLite store and run artifacts |
+| User experience | React SPA and typed API client |
+| Benchmark integrity | Fixtures, Docker runner, and evaluation gate |
+
 ## 2. High-level flow
 
 ```mermaid
