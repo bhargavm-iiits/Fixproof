@@ -313,6 +313,10 @@ This is a controlled repair harness, not a general-purpose sandbox for arbitrary
 
 ## 10. Operational model and known limits
 
+### Observability
+
+Each run has a stable ID, configuration hash, model identity, stage timings, usage totals, decision, and artifact directory. Structured backend logs use the run ID and stage as fields. The API exposes the same identity through `/runs/{id}` and `/healthz`; the artifact report preserves the evidence after the process exits. Operators should inspect the decision first, then the rejecting gate or verification result, and finally `stdout.txt` when a container result needs diagnosis.
+
 - Docker is required for verification. Without the verifier image, health reports the missing capability and runs fail safely.
 - Runs are serialized because Docker is treated as a shared resource; there is no parallel candidate verification.
 - SQLite is appropriate for one service process and a small number of readers. A multi-writer or multi-consumer deployment would require a different persistence boundary.
