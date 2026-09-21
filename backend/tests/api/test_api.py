@@ -160,19 +160,38 @@ class TestArtifacts:
     @pytest.mark.parametrize(
         "name",
         [
-            "../../../etc/passwd",
             "..%2F..%2Fsecret",
             "run.json/../../../secret",
             "C:/Windows/system32/config",
             "notes.md",
             "reference.patch",
+            "break.patch",
+            "workspace/paging.py",
         ],
     )
     async def test_anything_outside_the_allow_list_is_refused(self, client, name: str) -> None:
         seed_run(client, "run-art")
         response = await client.get(f"/runs/run-art/artifacts/{name}")
         assert response.status_code == 404
-        assert "passwd" not in response.text.replace("etc/passwd", "")
+
+    async def test_a_traversal_the_client_normalises_away_still_discloses_nothing(
+        self, client
+    ) -> None:
+        """httpx resolves `../` before sending, so this leaves the API surface entirely.
+
+        It must land on a 404 or the SPA shell — never on a file from the host.
+        """
+        seed_run(client, "run-art")
+        response = await client.get("/runs/run-art/artifacts/../../../etc/passwd")
+        assert response.status_code in {200, 404}
+        assert "root:x:" not in response.text
+        assert "seeded" not in response.text
+
+    async def test_the_spa_never_shadows_an_unknown_api_path(self, client) -> None:
+        """A mounted frontend must not turn a missing endpoint into a 200 of HTML."""
+        for path in ("/runs/nope/artifacts", "/defects/a/b/c", "/reports/nope", "/healthz/extra"):
+            response = await client.get(path)
+            assert response.status_code == 404, path
 
     async def test_an_allow_listed_but_absent_artifact_is_404(self, client) -> None:
         seed_run(client, "run-art")

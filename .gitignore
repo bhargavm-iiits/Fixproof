@@ -16,3 +16,6 @@ test-results/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+frontend/shots/
+frontend/test-results/
+frontend/playwright-report/

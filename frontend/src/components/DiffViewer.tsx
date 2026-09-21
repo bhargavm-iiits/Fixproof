@@ -1,9 +1,9 @@
 /**
  * A unified-diff viewer.
  *
- * Deliberately hand-written rather than pulled from a package: the format is
- * small, and the one thing this page must never do is render a patch as
- * something other than what the verifier applied.
+ * Hand-written rather than pulled from a package: the format is small, and the
+ * one thing this view must never do is render a patch as something other than
+ * what the verifier received.
  */
 type Line = {
   kind: "add" | "del" | "ctx" | "hunk" | "file" | "meta";
@@ -52,10 +52,10 @@ export function parseDiff(diff: string): Line[] {
 }
 
 const STYLE: Record<Line["kind"], string> = {
-  add: "bg-pass/10 text-pass",
-  del: "bg-fail/10 text-fail",
-  ctx: "text-slate-300",
-  hunk: "bg-accent/10 text-accent",
+  add: "bg-acid/10 text-acid",
+  del: "bg-reject/10 text-reject",
+  ctx: "text-bone/75",
+  hunk: "bg-bone/5 text-muted",
   file: "text-muted",
   meta: "text-muted",
 };
@@ -75,19 +75,19 @@ export function DiffViewer({ diff }: { diff: string }) {
     return <p className="text-sm text-muted">This candidate carries no diff.</p>;
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-edge bg-black/40">
+    <div className="overflow-x-auto border border-line bg-black/40">
       <table className="w-full border-collapse font-mono text-xs leading-relaxed">
         <tbody>
           {lines.map((line, index) => (
             <tr key={index} className={STYLE[line.kind]}>
-              <td className="w-12 select-none border-r border-edge px-2 text-right text-muted/60">
+              <td className="w-10 border-r border-line px-2 text-right text-muted/50 select-none">
                 {line.oldNumber ?? ""}
               </td>
-              <td className="w-12 select-none border-r border-edge px-2 text-right text-muted/60">
+              <td className="w-10 border-r border-line px-2 text-right text-muted/50 select-none">
                 {line.newNumber ?? ""}
               </td>
-              <td className="w-5 select-none px-1 text-center opacity-70">{MARK[line.kind]}</td>
-              <td className="whitespace-pre px-2 py-px">{line.text || " "}</td>
+              <td className="w-5 px-1 text-center opacity-70 select-none">{MARK[line.kind]}</td>
+              <td className="px-3 py-px whitespace-pre">{line.text || " "}</td>
             </tr>
           ))}
         </tbody>

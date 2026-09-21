@@ -321,6 +321,191 @@ class TestGeminiClient:
             if path.is_file():
                 assert SECRET not in path.read_text(encoding="utf-8")
 
+    def test_a_transient_server_error_is_retried_then_succeeds(self, monkeypatch, tmp_path,
+                                                               defect, retrieval,
+                                                               file_contents) -> None:
+        """A 503 from an overloaded model is capacity, not a bad reply."""
+        diff = "--- a/paging.py\n+++ b/paging.py\n@@ -1,2 +1,2 @@\n ctx\n-a\n+b\n"
+        good = json.dumps(
+            {"candidates": [{"rationale": "r", "unified_diff": diff, "confidence": 0.7}]}
+        )
+        attempts: list[int] = []
+
+        class Overloaded(Exception):
+            code = 503
+
+        class StubModels:
+            def generate_content(self, *, model, contents, config):
+                attempts.append(1)
+                if len(attempts) < 3:
+                    raise Overloaded("high demand")
+                return type("R", (), {"text": good, "usage_metadata": None})()
+
+        monkeypatch.setattr("backend.app.services.model_client.time.sleep", lambda _s: None)
+        client = object.__new__(GeminiModelClient)
+        client.settings = settings_for(
+            model_mode="gemini", gemini_api_key=SECRET, gemini_model="gemini-3.8-flash"
+        )
+        client.model_name = "gemini-3.8-flash"
+        client._client = type("C", (), {"models": StubModels()})()
+
+        candidates, _ = client.propose(
+            defect, retrieval, 3, file_contents, artifact_dir=tmp_path
+        )
+        assert len(candidates) == 1
+        assert len(attempts) == 3, "two failures, then success"
+
+    def test_transient_retries_are_bounded_by_a_time_budget(self, monkeypatch, tmp_path, defect,
+                                                            retrieval, file_contents) -> None:
+        attempts: list[int] = []
+        slept: list[float] = []
+
+        class Overloaded(Exception):
+            code = 503
+
+        class StubModels:
+            def generate_content(self, *, model, contents, config):
+                attempts.append(1)
+                raise Overloaded("high demand")
+
+        monkeypatch.setattr(
+            "backend.app.services.model_client.time.sleep", lambda seconds: slept.append(seconds)
+        )
+        client = object.__new__(GeminiModelClient)
+        client.settings = settings_for(
+            model_mode="gemini", gemini_api_key=SECRET, gemini_model="gemini-3.8-flash"
+        )
+        client.model_name = "gemini-3.8-flash"
+        client._client = type("C", (), {"models": StubModels()})()
+
+        with pytest.raises(ModelError, match="of backoff"):
+            client.propose(defect, retrieval, 3, file_contents, artifact_dir=tmp_path)
+        assert sum(slept) <= 150.0, "the retry budget is never exceeded"
+        assert len(attempts) > 4, "backoff keeps trying inside the budget"
+
+    def test_the_providers_own_retry_delay_is_honoured(self, monkeypatch, tmp_path, defect,
+                                                       retrieval, file_contents) -> None:
+        """Guessing a shorter delay than a 429 asks for just burns the quota again."""
+        diff = "--- a/paging.py\n+++ b/paging.py\n@@ -1,2 +1,2 @@\n ctx\n-a\n+b\n"
+        good = json.dumps(
+            {"candidates": [{"rationale": "r", "unified_diff": diff, "confidence": 0.7}]}
+        )
+        slept: list[float] = []
+        calls: list[int] = []
+
+        class RateLimited(Exception):
+            code = 429
+            details = [
+                {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "42s"}
+            ]
+
+        class StubModels:
+            def generate_content(self, *, model, contents, config):
+                calls.append(1)
+                if len(calls) == 1:
+                    raise RateLimited("quota")
+                return type("R", (), {"text": good, "usage_metadata": None})()
+
+        monkeypatch.setattr(
+            "backend.app.services.model_client.time.sleep", lambda seconds: slept.append(seconds)
+        )
+        client = object.__new__(GeminiModelClient)
+        client.settings = settings_for(
+            model_mode="gemini", gemini_api_key=SECRET, gemini_model="gemini-3.7-flash"
+        )
+        client.model_name = "gemini-3.7-flash"
+        client._client = type("C", (), {"models": StubModels()})()
+
+        client.propose(defect, retrieval, 3, file_contents, artifact_dir=tmp_path)
+        assert slept == [42.0], "waited exactly as long as the provider asked"
+
+    def test_a_daily_quota_fails_fast_instead_of_backing_off(self, monkeypatch, tmp_path,
+                                                             defect, retrieval,
+                                                             file_contents) -> None:
+        """Waiting a minute cannot clear a limit measured in days."""
+        slept: list[float] = []
+        calls: list[int] = []
+
+        class DailyQuota(Exception):
+            code = 429
+            details = [
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [
+                        {"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}
+                    ],
+                },
+                {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "51s"},
+            ]
+
+        class StubModels:
+            def generate_content(self, *, model, contents, config):
+                calls.append(1)
+                raise DailyQuota("quota exceeded, limit: 20")
+
+        monkeypatch.setattr(
+            "backend.app.services.model_client.time.sleep", lambda seconds: slept.append(seconds)
+        )
+        client = object.__new__(GeminiModelClient)
+        client.settings = settings_for(
+            model_mode="gemini", gemini_api_key=SECRET, gemini_model="gemini-3.7-flash"
+        )
+        client.model_name = "gemini-3.7-flash"
+        client._client = type("C", (), {"models": StubModels()})()
+
+        with pytest.raises(ModelError, match="daily request quota is exhausted"):
+            client.propose(defect, retrieval, 3, file_contents, artifact_dir=tmp_path)
+        assert calls == [1], "tried once"
+        assert slept == [], "and never slept"
+
+    def test_daily_quota_detection(self) -> None:
+        from backend.app.services.model_client import is_daily_quota_exhausted
+
+        assert is_daily_quota_exhausted(
+            RuntimeError("'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier'")
+        )
+        assert not is_daily_quota_exhausted(
+            RuntimeError("'quotaId': 'GenerateRequestsPerMinutePerProject'")
+        )
+        assert not is_daily_quota_exhausted(RuntimeError("503 UNAVAILABLE"))
+
+    def test_a_retry_delay_is_read_from_the_message_when_details_are_absent(self) -> None:
+        from backend.app.services.model_client import suggested_retry_delay
+
+        class Bare(Exception):
+            code = 429
+
+        error = Bare("429 RESOURCE_EXHAUSTED. {'error': {...}, 'retryDelay': '17s'}")
+        assert suggested_retry_delay(error) == 17.0
+
+    def test_no_retry_delay_means_none(self) -> None:
+        from backend.app.services.model_client import suggested_retry_delay
+
+        assert suggested_retry_delay(RuntimeError("503 UNAVAILABLE")) is None
+
+    def test_a_non_retryable_error_fails_immediately(self, tmp_path, defect, retrieval,
+                                                     file_contents) -> None:
+        attempts: list[int] = []
+
+        class BadRequest(Exception):
+            code = 400
+
+        class StubModels:
+            def generate_content(self, *, model, contents, config):
+                attempts.append(1)
+                raise BadRequest("malformed request")
+
+        client = object.__new__(GeminiModelClient)
+        client.settings = settings_for(
+            model_mode="gemini", gemini_api_key=SECRET, gemini_model="gemini-3.8-flash"
+        )
+        client.model_name = "gemini-3.8-flash"
+        client._client = type("C", (), {"models": StubModels()})()
+
+        with pytest.raises(ModelError, match="failed after 1"):
+            client.propose(defect, retrieval, 3, file_contents, artifact_dir=tmp_path)
+        assert len(attempts) == 1, "a 400 is not retried"
+
     def test_cost_is_unavailable_when_prices_are_unset(self) -> None:
         client = object.__new__(GeminiModelClient)
         client.settings = settings_for(

@@ -1,29 +1,104 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #0b1020;
-  --color-panel: #121a2e;
-  --color-edge: #22304f;
-  --color-muted: #8fa0c0;
-  --color-accent: #6ea8ff;
-  --color-pass: #3ddc97;
-  --color-fail: #ff6b6b;
-  --color-warn: #ffc857;
+  --color-ink: #0b0b0c;
+  --color-raised: #131315;
+  --color-line: #232326;
+  --color-bone: #f3f3f1;
+  --color-muted: #8c8c87;
+  --color-acid: #cff248;
+  --color-reject: #e5604a;
+
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
 }
 
-html,
-body,
-#root {
-  height: 100%;
+html {
+  scroll-behavior: smooth;
+  background: var(--color-ink);
 }
 
 body {
+  margin: 0;
   background: var(--color-ink);
-  color: #e8eefc;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-code,
-pre {
-  font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+/* The cursor follower replaces nothing — the real cursor stays, so clicking
+   never becomes a guess. */
+@media (pointer: fine) {
+  .cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border: 1px solid color-mix(in srgb, var(--color-acid) 55%, transparent);
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 90;
+    transition:
+      transform 0.14s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease,
+      width 0.18s ease,
+      height 0.18s ease;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 0;
+}
+
+/* A quiet grain so the flat black has some tooth. Not a gradient wash. */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.5) 0 1px,
+      transparent 1px 3px
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .cursor-dot {
+    display: none;
+  }
+}
+
+::selection {
+  background: var(--color-acid);
+  color: #0b0b0c;
 }

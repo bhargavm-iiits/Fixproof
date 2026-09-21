@@ -9,6 +9,8 @@ from __future__ import annotations
 import difflib
 import hashlib
 import json
+import re
+import time
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -18,6 +20,20 @@ from backend.app.config import Settings
 from backend.app.models import Defect, ProposedPatch, RetrievalResult, Usage
 
 PROMPT_VERSION = "2026-09-20.1"
+
+#: Transport failures worth another attempt. A 503 from an overloaded model is
+#: not a bad reply — retrying a schema error but not this one would report the
+#: provider's capacity as the system's error rate.
+RETRYABLE_STATUS = (408, 429, 500, 502, 503, 504)
+FIRST_BACKOFF_SECONDS = 1.0
+MAX_BACKOFF_SECONDS = 32.0
+#: Total time allowed across all transient retries for one call. A per-minute
+#: quota needs roughly a minute to clear, so this has to outlast one.
+MAX_TRANSIENT_WAIT_SECONDS = 150.0
+RETRY_DELAY_PATTERN = re.compile(r"'retryDelay':\s*'(\d+(?:\.\d+)?)s'")
+#: A per-day quota does not clear by waiting a minute. Backing off against one
+#: only turns a fast failure into a slow one.
+PER_DAY_QUOTA_PATTERN = re.compile(r"PerDay", re.IGNORECASE)
 
 SYSTEM_PROMPT = """\
 You repair a defect in a small Python library. A defect is repaired by changing \
@@ -75,6 +91,38 @@ RESPONSE_SCHEMA: dict[str, Any] = {
 
 class ModelError(RuntimeError):
     """The model could not be used, or its reply could not be understood."""
+
+
+def suggested_retry_delay(error: Exception) -> float | None:
+    """The `retryDelay` the provider asked for, in seconds, when it sent one."""
+    details = getattr(error, "details", None)
+    if isinstance(details, dict):
+        details = [details]
+    if isinstance(details, list | tuple):
+        for entry in details:
+            if isinstance(entry, dict):
+                raw = str(entry.get("retryDelay", ""))
+                if raw.endswith("s") and raw[:-1].replace(".", "", 1).isdigit():
+                    return float(raw[:-1])
+    match = RETRY_DELAY_PATTERN.search(str(error))
+    return float(match.group(1)) if match else None
+
+
+def is_daily_quota_exhausted(error: Exception) -> bool:
+    """True when the provider says the limit is per *day*, not per minute."""
+    details = getattr(error, "details", None)
+    if isinstance(details, dict):
+        details = [details]
+    if isinstance(details, list | tuple):
+        for entry in details:
+            if not isinstance(entry, dict):
+                continue
+            for violation in entry.get("violations") or []:
+                if isinstance(violation, dict) and PER_DAY_QUOTA_PATTERN.search(
+                    str(violation.get("quotaId", ""))
+                ):
+                    return True
+    return bool(PER_DAY_QUOTA_PATTERN.search(str(error)))
 
 
 class ModelClient(Protocol):
@@ -355,6 +403,42 @@ class GeminiModelClient:
             priced=self.settings.priced,
         )
 
+    def _generate(self, text: str) -> Any:
+        """Call the model, retrying transient failures inside a bounded budget.
+
+        A 429 carries the provider's own `retryDelay`; guessing a shorter one
+        just burns the quota again. Waiting longer than it asks for is the only
+        thing that actually clears a per-minute limit.
+        """
+        delay = FIRST_BACKOFF_SECONDS
+        waited = 0.0
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                return self._client.models.generate_content(
+                    model=self.model_name,
+                    contents=text,
+                    config=self._config(),
+                )
+            except Exception as error:  # noqa: BLE001 - re-raised below unless retryable
+                status = getattr(error, "code", None) or getattr(error, "status_code", None)
+                if is_daily_quota_exhausted(error):
+                    raise ModelError(
+                        "the model's daily request quota is exhausted, so retrying cannot "
+                        "help. Use a different model, wait for the reset, or enable "
+                        f"billing: {error}"
+                    ) from error
+                pause = max(delay, suggested_retry_delay(error) or 0.0)
+                if status not in RETRYABLE_STATUS or waited + pause > MAX_TRANSIENT_WAIT_SECONDS:
+                    raise ModelError(
+                        f"the model call failed after {attempt} attempt(s) "
+                        f"and {waited:.0f}s of backoff: {error}"
+                    ) from error
+                time.sleep(pause)
+                waited += pause
+                delay = min(delay * 2, MAX_BACKOFF_SECONDS)
+
     def propose(
         self,
         defect: Defect,
@@ -375,11 +459,7 @@ class GeminiModelClient:
             text = prompt
             if repair_note is not None:
                 text = f"{prompt}\n# Your previous reply was rejected\n{repair_note}\n"
-            response = self._client.models.generate_content(
-                model=self.model_name,
-                contents=text,
-                config=self._config(),
-            )
+            response = self._generate(text)
             raw = response.text or ""
             suffix = "" if attempt == 1 else f".retry{attempt}"
             _write_artifact(artifact_dir, f"response.raw{suffix}.json", raw)

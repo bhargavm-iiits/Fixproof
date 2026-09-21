@@ -1,40 +1,48 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api, type Health } from "./api";
-import { Badge } from "./components/ui";
+import { api } from "./api";
+import { useHealth } from "./lib/health";
+import { useActiveSection } from "./lib/motion";
+import { Loader } from "./components/Loader";
+import { Cursor } from "./components/Cursor";
+import { Hero } from "./sections/Hero";
+import { Gates } from "./sections/Gates";
+import { Stages } from "./sections/Stages";
+import { Live } from "./sections/Live";
+import { Evidence } from "./sections/Evidence";
+import { Limits } from "./sections/Limits";
+import { Footer } from "./sections/Footer";
 
-const TABS = [
-  { to: "/", label: "Defects", end: true },
-  { to: "/runs", label: "Runs", end: false },
-  { to: "/reports", label: "Quality", end: false },
-  { to: "/about", label: "Limits", end: false },
+const SECTIONS = [
+  { id: "gates", index: "01", label: "Gates" },
+  { id: "stages", index: "02", label: "Run" },
+  { id: "live", index: "03", label: "Try it" },
+  { id: "evidence", index: "04", label: "Evidence" },
+  { id: "limits", index: "05", label: "Limits" },
 ];
 
-export function useHealth() {
-  return useQuery<Health>({
-    queryKey: ["health"],
-    queryFn: api.health,
-    refetchInterval: 15_000,
-  });
-}
+const SECTION_IDS = SECTIONS.map((section) => section.id);
 
-function HealthBadge() {
-  const { data, isError } = useHealth();
-  if (isError) return <Badge tone="fail">API unreachable</Badge>;
-  if (!data) return <Badge tone="muted">checking…</Badge>;
-  const dockerReady = data.docker_reachable && data.image_present;
+function SideNav() {
+  const active = useActiveSection(SECTION_IDS);
   return (
-    <div className="flex flex-wrap items-center gap-2" data-testid="health">
-      <Badge tone={dockerReady ? "pass" : "fail"} title={data.image}>
-        {dockerReady ? "verifier ready" : "verifier unavailable"}
-      </Badge>
-      <Badge tone={data.model_mode === "gemini" ? "info" : "warn"}>
-        {data.model_mode === "gemini" ? `model: ${data.model_name}` : `${data.model_mode} mode`}
-      </Badge>
-      <Badge tone="muted" title="The hash of every setting that changes what the system decides">
-        config {data.config_hash.slice(0, 8)}
-      </Badge>
-    </div>
+    <nav className="pointer-events-none fixed top-1/2 left-6 z-40 hidden -translate-y-1/2 flex-col gap-3 xl:flex">
+      {SECTIONS.map((section) => {
+        const current = active === section.id;
+        return (
+          <a
+            key={section.id}
+            href={`#${section.id}`}
+            className={`pointer-events-auto flex items-center gap-3 font-mono text-[10px] tracking-[0.18em] uppercase transition-colors ${
+              current ? "text-acid" : "text-muted/50 hover:text-muted"
+            }`}
+          >
+            <span className={`h-px transition-all ${current ? "w-7 bg-acid" : "w-3 bg-muted/40"}`} />
+            {section.label}
+          </a>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -42,61 +50,50 @@ function DemoBanner() {
   const { data } = useHealth();
   if (!data || data.mutations_enabled) return null;
   return (
-    <div
-      data-testid="demo-banner"
-      className="border-b border-warn/40 bg-warn/10 px-6 py-2 text-center text-sm text-warn"
-    >
-      Read-only demonstration. Runs shown here were recorded in advance; starting one is disabled
-      server-side and the button is not rendered.
+    <div className="border-b border-reject/40 bg-reject/10 px-6 py-2.5 text-center text-sm text-reject">
+      Read&#8209;only demonstration. Runs shown here were recorded in advance; the controls that
+      would start one are not rendered, and the server refuses them with a 403 regardless.
     </div>
   );
 }
 
 export default function App() {
+  const [entered, setEntered] = useState(false);
+
+  const health = useHealth();
+  const defects = useQuery({ queryKey: ["defects", "dev"], queryFn: () => api.defects("dev") });
+
+  const settled = [health.isSuccess || health.isError, defects.isSuccess || defects.isError];
+  const ready = settled.filter(Boolean).length / settled.length;
+  const failed = health.isError;
+
+  useEffect(() => {
+    document.body.style.overflow = entered ? "" : "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [entered]);
+
   return (
-    <div className="min-h-full">
+    <div className="grain min-h-full">
+      <Cursor />
+      {!entered && <Loader ready={ready} failed={failed} onEnter={() => setEntered(true)} />}
       <DemoBanner />
-      <header className="border-b border-edge bg-panel/60 backdropblur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-6 py-4">
-          <div>
-            <h1 className="text-lg font-bold tracking-tight">
-              fix<span className="text-accent">proof</span>
-            </h1>
-            <p className="text-[11px] text-muted">
-              No fix is claimed without proof, and the proof is a container exit code.
-            </p>
-          </div>
-          <nav className="flex gap-1">
-            {TABS.map((tab) => (
-              <NavLink
-                key={tab.to}
-                to={tab.to}
-                end={tab.end}
-                className={({ isActive }) =>
-                  `rounded-lg px-3 py-1.5 text-sm transition ${
-                    isActive ? "bg-accent/15 text-accent" : "text-muted hover:text-slate-200"
-                  }`
-                }
-              >
-                {tab.label}
-              </NavLink>
-            ))}
-          </nav>
-          <div className="ml-auto">
-            <HealthBadge />
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <Outlet />
-      </main>
-      <footer className="mx-auto max-w-6xl px-6 pb-10 text-[11px] text-muted">
-        A synthetic target application with seeded defects. See{" "}
-        <NavLink to="/about" className="text-accent underline">
-          Limits
-        </NavLink>{" "}
-        before reading anything into these numbers.
-      </footer>
+      <SideNav />
+      <div
+        style={{
+          opacity: entered ? 1 : 0,
+          transition: "opacity .8s cubic-bezier(.22,1,.36,1) .1s",
+        }}
+      >
+        <Hero />
+        <Gates />
+        <Stages />
+        <Live />
+        <Evidence />
+        <Limits />
+        <Footer />
+      </div>
     </div>
   );
 }

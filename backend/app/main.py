@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -61,10 +61,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if assets.is_dir():
             app.mount("/assets", StaticFiles(directory=assets), name="assets")
 
+        # Derived from the router rather than hand-listed, so a new endpoint
+        # cannot start silently returning the SPA instead of a 404.
+        api_roots = {
+            route.path.lstrip("/").split("/", 1)[0]
+            for route in router.routes
+            if getattr(route, "path", "").startswith("/")
+        }
+        api_roots |= {"docs", "redoc", "openapi.json", "assets"}
+        api_roots.discard("")
+
         @app.get("/{path:path}", include_in_schema=False)
         async def spa(path: str) -> FileResponse:
-            candidate = FRONTEND_DIST / path
-            if path and candidate.is_file():
+            head = path.split("/", 1)[0]
+            if head in api_roots:
+                raise HTTPException(status_code=404, detail=f"no such endpoint: /{path}")
+            candidate = (FRONTEND_DIST / path).resolve()
+            if path and candidate.is_file() and candidate.is_relative_to(FRONTEND_DIST.resolve()):
                 return FileResponse(candidate)
             return FileResponse(FRONTEND_DIST / "index.html")
 
