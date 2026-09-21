@@ -281,6 +281,18 @@ Each fixture directory under `fixtures/dev/` or `fixtures/holdout/` contains:
 
 `evals/run_eval.py` runs a fixture set, aggregates decisions and safety metrics, and applies a mechanism-focused quality gate. It records model mode, model name, config hash, test-edit attempts, accepted test edits, regression rate, gate rejection rates, retrieval recall, latency, usage, cost availability, and leaked-container checks. Development fixtures may be iterated on; holdout fixtures are intended for frozen-config evaluation.
 
+### Validation layers
+
+| Layer | Command or entrypoint | Verifies |
+|---|---|---|
+| Unit/API | `pytest backend/tests` | Service contracts, gates, persistence, and routes |
+| Verifier | `pytest verifier/tests -m docker` | Container isolation and cleanup |
+| Fixtures | `scripts/validate_fixtures.py --set <set>` | Seeded bug and answer-key integrity |
+| Evaluation | `evals/run_eval.py --set <set> --gate` | Aggregate safety and quality thresholds |
+| Browser | `frontend/npx playwright test` | User journey and rendered frontend behavior |
+
+These layers are complementary: unit tests do not prove Docker isolation, and a green fixture validator does not prove the model-facing API or browser workflow.
+
 ## 9. Security and trust boundaries
 
 The model is untrusted input. Its prompt rules are advisory; the gates, patch applier, and verifier enforce the actual policy.
