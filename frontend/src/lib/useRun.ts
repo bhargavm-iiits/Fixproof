@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, STAGES, type Run } from "../api";
+import { API_BASE_URL, api, STAGES, type Run } from "../api";
 
 export type StageState = "pending" | "running" | "done";
 type Event = Record<string, unknown>;
@@ -43,7 +43,9 @@ export function useRunLifecycle() {
   useEffect(() => {
     if (!runId || streaming.current === runId) return;
     streaming.current = runId;
-    const source = new EventSource(`/runs/${encodeURIComponent(runId)}/events`);
+    const source = new EventSource(
+      `${API_BASE_URL}/runs/${encodeURIComponent(runId)}/events`,
+    );
 
     const handle = (raw: MessageEvent) => {
       let event: Event;

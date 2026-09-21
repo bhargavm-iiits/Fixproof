@@ -9,6 +9,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -50,6 +51,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version="1.0.0",
         description=DESCRIPTION,
         lifespan=lifespan,
+    )
+    origins = [origin.strip() for origin in resolved.cors_origins.split(",") if origin.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins or ["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
     app.state.settings = resolved
     app.state.store = store

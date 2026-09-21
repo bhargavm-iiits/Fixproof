@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     database_path: str = "runtime/fixproof.sqlite"
     artifact_root: str = "runtime/runs"
+    cors_origins: str = "*"
 
     max_candidates: int = Field(default=3, ge=1, le=10)
     max_run_seconds: int = Field(default=900, ge=0)

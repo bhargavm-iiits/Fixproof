@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: fixproof-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.lock.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: APP_MODE
+        value: demo
+      - key: MODEL_MODE
+        value: fake
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: PYTHON_VERSION
+        value: "3.12.8"
