@@ -66,6 +66,9 @@ cd frontend && npm ci && npm run build && cd ..
 Open <http://127.0.0.1:8000>. Pick a bug, press **Fix this bug**, and watch every
 suggestion get checked. API docs are at `/docs`.
 
+The public frontend deployment is available at
+<https://frontend-b8fpk0evn-bhargavm-iiits-projects.vercel.app/>.
+
 No API key is needed: the default `MODEL_MODE=fake` uses a stand-in that makes
 deliberately bad suggestions, which is what lets the safety machinery be tested
 for free. To use a real model, set `MODEL_MODE=gemini`, `GEMINI_API_KEY` and
