@@ -53,6 +53,15 @@ prepare -> baseline -> retrieve -> propose -> gate -> verify -> select
 
 The backend exposes the same stage list through `/graph`, allowing the frontend to render the actual state machine rather than duplicating a separate diagram.
 
+## Request lifecycle
+
+1. The browser loads health, defects, reports, and the stage graph from the same-origin API.
+2. A user submits a defect ID to `POST /runs`; the API validates the fixture and returns HTTP 202 with a run ID.
+3. `RunManager` places the run in its FIFO queue and emits queued/running events.
+4. `Orchestrator` owns all repair stages and emits stage and candidate events as work completes.
+5. The browser follows live runs through SSE and refreshes the durable run view after completion.
+6. The final record is written to SQLite and the artifact directory, so later reads do not depend on the worker thread.
+
 ## 3. Backend components
 
 ### Application and configuration
