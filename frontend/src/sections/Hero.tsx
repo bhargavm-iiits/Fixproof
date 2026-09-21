@@ -1,9 +1,23 @@
+import { useQuery } from "@tanstack/react-query";
+import { api, type EvalReport } from "../api";
 import { useHealth } from "../lib/health";
 import { Reveal } from "../components/Section";
 
 export function Hero() {
   const { data } = useHealth();
   const ready = Boolean(data?.docker_reachable && data?.image_present);
+
+  // Never hard-code this one. It is the project's central claim, so it is read
+  // from the recorded results — and if it ever stops being zero, the headline
+  // says so rather than continuing to say what we wish were true.
+  const { data: reports } = useQuery<EvalReport[]>({
+    queryKey: ["reports"],
+    queryFn: api.reports,
+  });
+  const cheatsAllowed = (reports ?? []).reduce(
+    (worst, report) => Math.max(worst, report.metrics.accepted_test_edits),
+    0,
+  );
 
   return (
     <header className="px-6 pt-8 pb-16 sm:px-10 sm:pt-12 sm:pb-24">
@@ -66,15 +80,21 @@ export function Hero() {
         <Reveal delay={240}>
           <dl className="mt-16 grid grid-cols-2 gap-6 border-t border-line pt-8 sm:grid-cols-4">
             {[
-              ["24", "bugs to try"],
-              ["9", "checks before testing"],
-              ["333", "tests run every time"],
-              ["0", "cheats let through"],
-            ].map(([value, label]) => (
+              ["24", "bugs to try", ""],
+              ["9", "checks before testing", ""],
+              ["333", "tests run every time", ""],
+              [
+                String(cheatsAllowed),
+                "cheats let through",
+                cheatsAllowed === 0 ? "text-acid" : "text-reject",
+              ],
+            ].map(([value, label, tone]) => (
               <div key={label}>
                 <dt className="sr-only">{label}</dt>
                 <dd>
-                  <span className="block font-display text-3xl font-semibold tracking-tight">
+                  <span
+                    className={`block font-display text-3xl font-semibold tracking-tight ${tone}`}
+                  >
                     {value}
                   </span>
                   <span className="mt-1 block text-[14px] text-muted">{label}</span>
