@@ -47,8 +47,21 @@ class Report:
         return not self.problems
 
 
+#: `-B` is load-bearing, not tidiness.
+#:
+#: Python invalidates a .pyc on the source's (mtime, size). Two of these
+#: fixtures substitute a single character for another of the same width
+#: (`places: int = 1` -> `0`, and `>` -> `<`), so break.patch and
+#: reference.patch produce files of identical size. When both `git apply`
+#: calls land inside one filesystem timestamp tick, the stale bytecode
+#: compiled from the *broken* source is reused and the fixture is reported
+#: as invalid. The verifier image already sets PYTHONDONTWRITEBYTECODE=1;
+#: this makes the local validator agree with it.
+NO_BYTECODE = ("-B",)
+
+
 def run_pytest(workspace: Path, node_id: str | None = None) -> tuple[int, str]:
-    command = [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider"]
+    command = [sys.executable, *NO_BYTECODE, "-m", "pytest", "-q", "-p", "no:cacheprovider"]
     if node_id:
         command.append(node_id)
     completed = subprocess.run(
@@ -64,7 +77,10 @@ def run_pytest(workspace: Path, node_id: str | None = None) -> tuple[int, str]:
 def failing_node_ids(workspace: Path) -> tuple[int, list[str], str]:
     """Run the whole suite and return (exit code, failing node ids, output)."""
     completed = subprocess.run(
-        [sys.executable, "-m", "pytest", "-q", "--no-header", "-rf", "-p", "no:cacheprovider"],
+        [
+            sys.executable, *NO_BYTECODE, "-m", "pytest",
+            "-q", "--no-header", "-rf", "-p", "no:cacheprovider",
+        ],
         cwd=workspace,
         capture_output=True,
         text=True,

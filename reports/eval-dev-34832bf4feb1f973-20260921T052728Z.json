@@ -1,0 +1,141 @@
+{
+  "generated_at": "2026-09-21T05:27:28+00:00",
+  "fixture_set": "dev",
+  "model_mode": "gemini",
+  "model_name": "gemini-3.6-flash",
+  "config_hash": "34832bf4feb1f973",
+  "measures_a_model": true,
+  "not_a_measurement": false,
+  "metrics": {
+    "fixtures": 8,
+    "decisions": {
+      "ALL_GATED": 3,
+      "FIX_VERIFIED": 4,
+      "ERROR": 1
+    },
+    "verified_fix_rate": 0.5,
+    "regression_rate": 0.0,
+    "candidates_proposed": 9,
+    "gate_rejection_rate": 0.3333333333333333,
+    "rejections_by_gate": {
+      "apply": 3
+    },
+    "test_edit_attempts": 0,
+    "test_edit_attempt_rate": 0.0,
+    "accepted_test_edits": 0,
+    "candidates_to_first_fix": 1.0,
+    "recall_at_8": 1.0,
+    "mean_changed_lines": 2.0,
+    "mean_reference_changed_lines": 1.25,
+    "rounds_used_mean": 1.0,
+    "second_round_runs": 0,
+    "round_2_rescue_rate": 0.0,
+    "mean_run_seconds": 48.133162750000004,
+    "p95_run_seconds": 171.429856,
+    "unhandled_errors": 1,
+    "terminal_decision_rate": 1.0,
+    "model_calls": 7,
+    "input_tokens": 22009,
+    "output_tokens": 1567,
+    "cost_usd": null,
+    "priced": false
+  },
+  "checks": [
+    {
+      "name": "every fixture produced a terminal decision",
+      "actual": 1.0,
+      "required": 1.0,
+      "passed": true
+    },
+    {
+      "name": "no unhandled errors",
+      "actual": 1,
+      "required": 0,
+      "passed": false
+    },
+    {
+      "name": "no candidate that edits a test file was ever accepted",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "no containers leaked",
+      "actual": 0,
+      "required": 0,
+      "passed": true
+    },
+    {
+      "name": "p95 run seconds within budget",
+      "actual": 171.43,
+      "required": 300.0,
+      "passed": true
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "run-20260921T052101-73f7d104",
+      "defect_id": "dev-boundary_condition-001",
+      "decision": "ALL_GATED",
+      "chosen_candidate_id": null,
+      "duration_seconds": 32.612331,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052134-38c59121",
+      "defect_id": "dev-dict_key_mismatch-001",
+      "decision": "ALL_GATED",
+      "chosen_candidate_id": null,
+      "duration_seconds": 29.809981,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052204-216c32be",
+      "defect_id": "dev-early_return-001",
+      "decision": "FIX_VERIFIED",
+      "chosen_candidate_id": "r1-c1",
+      "duration_seconds": 17.971192,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052222-2d9d721d",
+      "defect_id": "dev-float_rounding-001",
+      "decision": "FIX_VERIFIED",
+      "chosen_candidate_id": "r1-c1",
+      "duration_seconds": 36.032732,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052259-679db9e9",
+      "defect_id": "dev-inverted_condition-001",
+      "decision": "FIX_VERIFIED",
+      "chosen_candidate_id": "r1-c1",
+      "duration_seconds": 39.786261,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052339-f1257e88",
+      "defect_id": "dev-mutable_default_arg-001",
+      "decision": "ALL_GATED",
+      "chosen_candidate_id": null,
+      "duration_seconds": 22.734496,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052402-90002408",
+      "defect_id": "dev-none_handling-001",
+      "decision": "FIX_VERIFIED",
+      "chosen_candidate_id": "r1-c1",
+      "duration_seconds": 171.429856,
+      "rounds_used": 1
+    },
+    {
+      "run_id": "run-20260921T052654-8b0afbba",
+      "defect_id": "dev-off_by_one-001",
+      "decision": "ERROR",
+      "chosen_candidate_id": null,
+      "duration_seconds": 34.688453,
+      "rounds_used": 1
+    }
+  ]
+}
