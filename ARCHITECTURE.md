@@ -266,6 +266,8 @@ The page is split into focused sections:
 
 `frontend/src/api.ts` is the typed client contract. Production FastAPI serves `frontend/dist` from the same origin, while Vite provides the development workflow. The backend SPA fallback derives known API roots from the router so an unknown API path remains a 404 instead of being swallowed by the frontend fallback.
 
+Frontend data ownership is intentionally split: TanStack Query owns request caching and refetching, `useRun.ts` owns active-run polling/SSE coordination, and the section components own presentation. No frontend component reimplements candidate eligibility or stage ordering; those values come from the backend response and `/graph`.
+
 ## 8. Fixtures, target application, and evaluation
 
 Each fixture directory under `fixtures/dev/` or `fixtures/holdout/` contains:
