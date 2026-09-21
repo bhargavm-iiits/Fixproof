@@ -71,6 +71,17 @@ The backend exposes the same stage list through `/graph`, allowing the frontend 
 - `APP_MODE=demo` disables mutations with HTTP 403 responses. `MODEL_MODE=fake` is offline and deliberately produces rejectable candidates; `fake_solve` uses fixture answer keys for demonstrations and is not a measurement; `gemini` is the real model integration.
 - `backend/app/fingerprint.py` produces a configuration hash for reproducibility. The hash is stored with each run and evaluation report.
 
+The important operating modes are:
+
+| Mode | Model | Mutations | Intended use |
+|---|---|---:|---|
+| `local` + `fake` | Deterministic rejectable client | Enabled | Harness and safety checks |
+| `local` + `fake_solve` | Fixture reference patch | Enabled | Explicit happy-path demonstration |
+| `local` + `gemini` | Configured Gemini model | Enabled | Model evaluation |
+| `demo` + `fake` | Recorded/read-only experience | Disabled | Public demonstration |
+
+Configuration validation rejects missing Gemini credentials and rejects combining demo mode with a real model key.
+
 ### API and scheduling
 
 - `backend/app/api/routes.py` defines health, defect, run, artifact, report, graph, decision, and status endpoints.
