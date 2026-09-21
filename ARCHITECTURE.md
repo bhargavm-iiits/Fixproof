@@ -165,6 +165,12 @@ The image built by `docker/verifier.Dockerfile` contains Python 3.12, target dep
 
 The resulting decision is one of `FIX_VERIFIED`, `NO_VERIFIED_FIX`, `ALL_GATED`, `TIMEOUT`, or `ERROR`.
 
+### State transitions
+
+At run level, a request moves through `queued -> running -> succeeded` when the orchestrator completes normally. A failed stage moves the run to `failed`; cooperative cancellation moves it to `cancelled`. The decision is independent detail recorded on the terminal run: for example, a normally completed run may have `ALL_GATED` or `NO_VERIFIED_FIX` without being an infrastructure failure.
+
+Candidate status follows the evidence available for that candidate: it starts as `proposed`, becomes `rejected` when a gate fails, becomes `verified` after a successful container check, and can become `errored` when candidate processing cannot complete. This separation lets the UI explain both the run's operational state and the repair decision.
+
 ## 5. Persistence and artifacts
 
 ### SQLite
