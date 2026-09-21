@@ -1,4 +1,5 @@
 import { useHealth } from "./lib/health";
+import { Backdrop } from "./components/Backdrop";
 import { Hero } from "./sections/Hero";
 import { HowItWorks } from "./sections/HowItWorks";
 import { TheCatch } from "./sections/TheCatch";
@@ -23,16 +24,19 @@ export default function App() {
       <a href="#try" className="skip-link">
         Skip to the interactive demo
       </a>
-      <ReadOnlyNotice />
-      <main id="main">
-        <Hero />
-        <HowItWorks />
-        <TheCatch />
-        <Live />
-        <Results />
-        <Limits />
-      </main>
-      <Footer />
+      <Backdrop />
+      <div className="relative z-10">
+        <ReadOnlyNotice />
+        <main id="main">
+          <Hero />
+          <HowItWorks />
+          <TheCatch />
+          <Live />
+          <Results />
+          <Limits />
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }

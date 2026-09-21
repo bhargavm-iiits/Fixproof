@@ -73,6 +73,64 @@ test("it is usable with a keyboard", async ({ page }) => {
   await expect(page.locator(".skip-link")).toBeFocused();
 });
 
+/**
+ * Sums the pixels around the vanishing point, where the tunnel actually is, so
+ * two samples can be compared for movement.
+ */
+async function sampleBackdrop(page: Page) {
+  return page.locator("canvas[aria-hidden='true']").evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    const context = canvas.getContext("2d");
+    if (!context) return -1;
+    const size = 360;
+    const left = Math.max(0, Math.round(canvas.width * 0.68) - size / 2);
+    const top = Math.max(0, Math.round(canvas.height * 0.46) - size / 2);
+    const pixels = context.getImageData(
+      left,
+      top,
+      Math.min(size, canvas.width - left),
+      Math.min(size, canvas.height - top),
+    ).data;
+    let total = 0;
+    for (let index = 0; index < pixels.length; index += 4) {
+      total += pixels[index] + pixels[index + 1] + pixels[index + 2] + pixels[index + 3];
+    }
+    return total;
+  });
+}
+
+test("the animated backdrop stays out of the way", async ({ page }) => {
+  await open(page);
+  const canvas = page.locator("canvas[aria-hidden='true']");
+  await expect(canvas).toHaveCount(1);
+  await expect(canvas).toHaveCSS("pointer-events", "none");
+
+  // It is animating.
+  const first = await sampleBackdrop(page);
+  await page.waitForTimeout(600);
+  expect(await sampleBackdrop(page)).not.toBe(first);
+
+  // And it yields as soon as there is something to read.
+  const atTop = await canvas.evaluate((el) => Number(getComputedStyle(el).opacity));
+  await page.locator("#limits").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  const whileReading = await canvas.evaluate((el) => Number(getComputedStyle(el).opacity));
+  expect(whileReading).toBeLessThan(atTop);
+  expect(atTop).toBeGreaterThan(0.9);
+});
+
+test.describe("with reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("the backdrop draws one frame and then holds still", async ({ page }) => {
+    await open(page);
+    await expect(page.locator("canvas[aria-hidden='true']")).toHaveCount(1);
+    const first = await sampleBackdrop(page);
+    await page.waitForTimeout(900);
+    expect(await sampleBackdrop(page)).toBe(first);
+  });
+});
+
 test("it is usable at phone width", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await open(page);
