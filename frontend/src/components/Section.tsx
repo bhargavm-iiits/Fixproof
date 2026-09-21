@@ -25,65 +25,57 @@ export function Reveal({
 
 export function Section({
   id,
-  index,
   title,
   lead,
   children,
 }: {
   id: string;
-  index: string;
   title: string;
   lead?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 border-t border-line px-6 py-20 sm:px-12 sm:py-28">
-      <div className="mx-auto max-w-6xl">
+    <section id={id} className="scroll-mt-20 border-t border-line px-6 py-16 sm:px-10 sm:py-20">
+      <div className="mx-auto max-w-4xl">
         <Reveal>
-          <div className="flex flex-col gap-5 lg:flex-row lg:gap-16">
-            <div className="lg:w-48 lg:shrink-0">
-              <span className="font-mono text-[11px] tracking-[0.2em] text-acid uppercase">
-                ({index})
-              </span>
-            </div>
-            <div className="flex-1">
-              <h2
-                className="font-display font-semibold tracking-tight text-bone"
-                style={{ fontSize: "clamp(2rem, 4.6vw, 3.6rem)", lineHeight: 1.02 }}
-              >
-                {title}
-              </h2>
-              {lead && (
-                <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-                  {lead}
-                </p>
-              )}
-            </div>
-          </div>
+          <h2
+            className="font-display font-semibold tracking-tight text-bone"
+            style={{ fontSize: "clamp(1.75rem, 3.6vw, 2.6rem)", lineHeight: 1.12 }}
+          >
+            {title}
+          </h2>
+          {lead && <p className="mt-4 max-w-2xl text-body">{lead}</p>}
         </Reveal>
-        <div className="mt-12 lg:pl-64">{children}</div>
+        <div className="mt-10">{children}</div>
       </div>
     </section>
   );
 }
 
+const TONES = {
+  good: "border-acid/50 bg-acid/10 text-acid",
+  bad: "border-reject/50 bg-reject/10 text-reject",
+  warn: "border-line bg-white/5 text-body",
+  plain: "border-line text-muted",
+};
+
 export function Tag({
   children,
-  tone = "muted",
+  tone = "plain",
 }: {
   children: ReactNode;
-  tone?: "muted" | "acid" | "reject";
+  tone?: keyof typeof TONES;
 }) {
-  const tones = {
-    muted: "border-line text-muted",
-    acid: "border-acid/50 text-acid",
-    reject: "border-reject/50 text-reject",
-  };
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px] ${tones[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[13px] ${TONES[tone]}`}
     >
       {children}
     </span>
   );
+}
+
+/** The technical name, for anyone who wants it, never in the way of anyone who doesn't. */
+export function TechName({ children }: { children: ReactNode }) {
+  return <code className="font-mono text-[12px] text-muted">{children}</code>;
 }

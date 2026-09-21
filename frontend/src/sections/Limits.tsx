@@ -2,36 +2,28 @@ import { Section } from "../components/Section";
 
 const LIMITS: [string, string][] = [
   [
-    "The target application is synthetic",
-    "Ten small pure-Python modules written for this project, with 333 tests that run in under a second. Nothing here demonstrates that the system repairs defects in a codebase it has never been evaluated against, and no such claim is made.",
+    "The program being fixed is one we wrote",
+    "Ten small files and 333 tests, built for this project. Nothing here shows that the same approach works on a large, messy, real codebase — and we don't claim it does.",
   ],
   [
-    "The defects are seeded, not found in the wild",
-    "Twenty-four defects, twelve per set, one per category. Each is a single exact snippet substitution whose break patch is proven to fail exactly one named test and no other, and whose reference patch is proven to restore a green suite.",
+    "The bugs were planted on purpose",
+    "Twenty-four of them, and we know the correct fix for each one in advance. Every planted bug is checked to make sure it breaks exactly one test and nothing else.",
   ],
   [
-    "Retrieval is BM25 only",
-    "No embeddings and no reranker. At a few hundred chunks lexical retrieval is adequate, deterministic and needs no model. recall@8 is reported against what ranking found on its own — excluding the forced inclusions that would otherwise make the number 1.0 by construction. The decision reverses below 0.9.",
+    "The AI never sees the answer",
+    "The known-good fix is used only for scoring. It is never put in front of the AI — with one clearly-labelled exception used for testing the plumbing, which is why any result from that mode is stamped as not a measurement.",
   ],
   [
-    "fake mode measures the harness",
-    "It proposes three candidates meant to be rejected: one that changes nothing, one outside the allowed scope, one that edits the failing test. A fake-mode report says so on its first page.",
+    "Finding the right file is done simply",
+    "We match words, rather than using anything cleverer. At this size that works fine, and we measure how often it hands over the right file so the moment it stops working will be visible.",
   ],
   [
-    "fake_solve reads the answer key",
-    "It returns the fixture's own reference patch, so its fix rate is 100% by construction. The eval runner refuses to write a report from it without --unsafe-demo, and stamps every page that results.",
+    "Some runs use a stand-in, not a real AI",
+    "The stand-in deliberately makes bad suggestions, including one that tries to change the test. It exists so the safety machinery can be tested without spending money, and any results from it say so.",
   ],
   [
-    "The holdout protocol",
-    "The dev set is used freely while iterating. The holdout set runs only against a frozen configuration, and every holdout run is recorded with its config hash. If a holdout failure causes a prompt change, that fixture is burned and must be replaced.",
-  ],
-  [
-    "What a verified fix actually means",
-    "A container with no network, a read-only image, capped memory, CPU and process count, and a kill from the host ran the target's own suite twice and reported that the named failing test passes and that no test which passed in the baseline now fails. Nothing else counts, however confident the model was.",
-  ],
-  [
-    "Explicitly out of scope",
-    "No uploading of arbitrary repositories, no real financial data, no automatic deployment, no production authentication, no resumable runs, no multi-tenant isolation, no embedding-based retrieval, no parallel candidate verification.",
+    "What 'proven' actually means here",
+    "A sealed sandbox — no internet, limited memory, a hard time limit — ran the program's own tests twice and reported that the broken test now passes and nothing that passed before now fails. That is the entire claim. Nothing else counts.",
   ],
 ];
 
@@ -39,15 +31,14 @@ export function Limits() {
   return (
     <Section
       id="limits"
-      index="05"
-      title="What this does not show."
-      lead="Read these before reading anything into the numbers above."
+      title="What this doesn't prove"
+      lead="Worth reading before you take any of the numbers above too seriously."
     >
-      <div className="grid gap-x-16 gap-y-10 sm:grid-cols-2">
+      <div className="grid gap-x-12 gap-y-8 sm:grid-cols-2">
         {LIMITS.map(([title, body]) => (
           <article key={title}>
-            <h3 className="font-display text-lg font-medium tracking-tight text-bone">{title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+            <h3 className="font-medium text-bone">{title}</h3>
+            <p className="mt-1.5 text-[15px] text-body">{body}</p>
           </article>
         ))}
       </div>

@@ -1,60 +1,32 @@
 import { useHealth } from "../lib/health";
-import { Reveal } from "../components/Section";
 
 export function Footer() {
   const { data } = useHealth();
 
   return (
-    <footer className="border-t border-line px-6 py-16 sm:px-12 sm:py-20">
-      <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <div className="flex flex-col gap-12 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p
-                className="font-display font-semibold tracking-tight text-bone"
-                style={{ fontSize: "clamp(1.9rem, 5vw, 3.4rem)", lineHeight: 1.02 }}
-              >
-                The proof is a container
-                <br />
-                exit code.
-              </p>
-              <p className="mt-5 max-w-md text-sm leading-relaxed text-muted">
-                Not a score, not a confidence, not a model&rsquo;s opinion about its own patch.
-              </p>
-            </div>
+    <footer className="border-t border-line px-6 py-14 sm:px-10">
+      <div className="mx-auto max-w-4xl">
+        <p className="max-w-xl font-display text-2xl font-semibold tracking-tight">
+          A fix is a claim. A passing test suite in a sealed box is evidence.
+        </p>
 
-            <nav className="flex flex-col gap-3">
-              {[
-                ["API reference", "/docs"],
-                ["OpenAPI schema", "/openapi.json"],
-                ["Stage machine", "/graph"],
-                ["Latest report", "/reports/latest"],
-              ].map(([label, href]) => (
-                <a
-                  key={href}
-                  href={href}
-                  className="group inline-flex items-center gap-3 font-display text-lg tracking-tight text-muted transition-colors hover:text-acid"
-                >
-                  <span className="transition-transform duration-300 group-hover:translate-x-1">
-                    &rarr;
-                  </span>
-                  {label}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </Reveal>
+        <nav aria-label="Technical details" className="mt-8 flex flex-wrap gap-x-8 gap-y-2">
+          {[
+            ["Browse the API", "/docs"],
+            ["Raw schema", "/openapi.json"],
+            ["Latest results", "/reports/latest"],
+          ].map(([label, href]) => (
+            <a key={href} href={href} className="text-[15px] text-body underline hover:text-acid">
+              {label}
+            </a>
+          ))}
+        </nav>
 
-        <hr className="rule my-12" />
-
-        <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-[11px] text-muted">
-          <span>fixproof</span>
-          <span>
-            {data
-              ? `${data.model_mode} · config ${data.config_hash.slice(0, 12)} · schema v${data.schema_version}`
-              : "—"}
-          </span>
-        </div>
+        <p className="mt-10 border-t border-line pt-6 text-[13px] text-muted">
+          {data
+            ? `Running in ${data.model_mode} mode. Sandbox ${data.docker_reachable ? "available" : "unavailable"}.`
+            : "Checking status…"}
+        </p>
       </div>
     </footer>
   );

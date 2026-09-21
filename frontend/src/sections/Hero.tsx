@@ -1,80 +1,87 @@
 import { useHealth } from "../lib/health";
-import { Reveal, Tag } from "../components/Section";
+import { Reveal } from "../components/Section";
 
 export function Hero() {
   const { data } = useHealth();
-  const dockerReady = Boolean(data?.docker_reachable && data?.image_present);
+  const ready = Boolean(data?.docker_reachable && data?.image_present);
 
   return (
-    <header className="relative px-6 pt-10 pb-20 sm:px-12 sm:pt-14 sm:pb-28">
-      <div className="mx-auto max-w-6xl">
+    <header className="px-6 pt-8 pb-16 sm:px-10 sm:pt-12 sm:pb-24">
+      <div className="mx-auto max-w-4xl">
         <Reveal>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <span className="font-mono text-[11px] tracking-[0.2em] text-muted uppercase">
-              fixproof
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="font-display text-lg font-semibold tracking-tight">
+              fix<span className="text-acid">proof</span>
             </span>
-            <div className="flex flex-wrap items-center gap-2">
-              <Tag tone={dockerReady ? "acid" : "reject"}>
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${dockerReady ? "bg-acid" : "bg-reject"}`}
-                />
-                {dockerReady ? "verifier ready" : "verifier unavailable"}
-              </Tag>
-              {data && <Tag>{data.model_mode} mode</Tag>}
-              {data && <Tag>config {data.config_hash.slice(0, 8)}</Tag>}
-            </div>
+            <span className="flex items-center gap-2 text-[13px] text-muted">
+              <span
+                className={`h-2 w-2 rounded-full ${ready ? "bg-acid" : "bg-reject"}`}
+                aria-hidden="true"
+              />
+              {ready ? "Ready to run" : "Sandbox unavailable"}
+            </span>
           </div>
         </Reveal>
 
-        <Reveal delay={90}>
+        <Reveal delay={60}>
           <h1
-            className="mt-20 font-display font-semibold tracking-tight text-bone sm:mt-28"
-            style={{ fontSize: "clamp(2.8rem, 9.4vw, 9rem)", lineHeight: 0.92, letterSpacing: "-0.05em" }}
+            className="mt-16 font-display font-semibold tracking-tight text-bone sm:mt-24"
+            style={{ fontSize: "clamp(2.4rem, 6.6vw, 4.6rem)", lineHeight: 1.03, letterSpacing: "-0.035em" }}
           >
-            Repair a defect.
+            An AI says it fixed the bug.
             <br />
-            <span className="text-muted">Prove</span> the repair.
+            <span className="text-muted">Did it?</span>
           </h1>
         </Reveal>
 
-        <div className="mt-14 flex flex-col gap-12 lg:flex-row lg:items-end lg:justify-between">
-          <Reveal delay={160}>
-            <p className="max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              A patch is a hypothesis until something runs it. fixproof pushes every candidate
-              through nine static gates, then executes the survivors against the target&rsquo;s own
-              test suite inside a container with no network, a read&#8209;only image and a
-              host&#8209;enforced kill.
-            </p>
-          </Reveal>
-          <Reveal delay={220}>
-            <a
-              href="#live"
-              className="group inline-flex h-14 items-center gap-4 border-b border-bone pb-1 font-display text-2xl font-medium tracking-tight text-bone sm:text-3xl"
-            >
-              run one
-              <span className="transition-transform duration-300 group-hover:translate-y-1">
-                &darr;
-              </span>
-            </a>
-          </Reveal>
-        </div>
+        <Reveal delay={120}>
+          <p className="mt-8 max-w-2xl text-lg text-body">
+            fixproof takes a program with a known bug, asks an AI to repair it, and then checks the
+            answer the only way that counts &mdash; by actually running the program&rsquo;s tests
+            inside a locked box with no internet access.
+          </p>
+          <p className="mt-4 max-w-2xl text-lg text-body">
+            If the tests don&rsquo;t pass, it isn&rsquo;t a fix. It doesn&rsquo;t matter how
+            confident the AI sounded.
+          </p>
+        </Reveal>
 
-        <Reveal delay={280}>
-          <div className="mt-20 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
+        <Reveal delay={180}>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <a
+              href="#try"
+              className="inline-flex h-12 items-center rounded-lg bg-acid px-6 font-medium text-ink transition hover:brightness-110"
+            >
+              Try it yourself
+            </a>
+            <a
+              href="#how"
+              className="inline-flex h-12 items-center rounded-lg border border-line px-6 text-bone transition hover:border-bone/40"
+            >
+              How it works
+            </a>
+          </div>
+        </Reveal>
+
+        <Reveal delay={240}>
+          <dl className="mt-16 grid grid-cols-2 gap-6 border-t border-line pt-8 sm:grid-cols-4">
             {[
-              ["24", "seeded defects"],
-              ["9", "static gates"],
-              ["1", "container that decides"],
-              ["333", "tests per verification"],
+              ["24", "bugs to try"],
+              ["9", "checks before testing"],
+              ["333", "tests run every time"],
+              ["0", "cheats let through"],
             ].map(([value, label]) => (
-              <div key={label} className="bg-ink px-5 py-7">
-                <div className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                  {value}
-                </div>
-                <div className="mt-2 text-xs leading-snug text-muted">{label}</div>
+              <div key={label}>
+                <dt className="sr-only">{label}</dt>
+                <dd>
+                  <span className="block font-display text-3xl font-semibold tracking-tight">
+                    {value}
+                  </span>
+                  <span className="mt-1 block text-[14px] text-muted">{label}</span>
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
         </Reveal>
       </div>
     </header>

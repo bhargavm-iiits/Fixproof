@@ -1,81 +1,81 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * The phase acceptance from the plan, as a test: a visitor can see how many
- * candidates were proposed, why each was rejected, and what the container
- * proved — without reading any code.
+ * The acceptance test for the whole project, written the way a visitor would
+ * describe it: can someone who does not write software understand what
+ * happened, and why an answer was refused?
  */
 
-async function enter(page: Page) {
+async function open(page: Page) {
   await page.goto("/");
-  const gate = page.getByTestId("enter");
-  await expect(gate).toBeEnabled({ timeout: 30_000 });
-  await gate.click();
-  await expect(page.getByTestId("loader")).toBeHidden({ timeout: 10_000 });
+  await expect(page.getByRole("heading", { name: /An AI says it fixed the bug/i })).toBeVisible();
 }
 
-test("the loading gate reflects real readiness and opens the page", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByTestId("loader")).toBeVisible();
-  await expect(page.getByTestId("enter")).toBeEnabled({ timeout: 30_000 });
-  await page.getByTestId("enter").click();
-  await expect(page.getByRole("heading", { name: /Repair a defect/i })).toBeVisible();
+test("the page explains itself without jargon", async ({ page }) => {
+  await open(page);
+  await expect(page.locator("#how")).toContainText("Something is broken");
+  await expect(page.locator("#how")).toContainText("The AI suggests repairs");
+  await expect(page.locator("#catch")).toContainText("Fix the code");
+  await expect(page.locator("#catch")).toContainText("Change the test");
 });
 
-test("the nine gates are listed and expand", async ({ page }) => {
-  await enter(page);
-  const gates = page.locator("#gates li");
-  await expect(gates).toHaveCount(9);
-  await expect(page.locator("#gates")).toContainText("no_test_edits");
-  await page.getByRole("button", { name: /diff_parses/ }).click();
-  await expect(page.locator("#gates")).toContainText("hunk header");
+test("the nine checks are listed in plain words and expand", async ({ page }) => {
+  await open(page);
+  const checks = page.locator("#catch ul > li");
+  await expect(checks).toHaveCount(9);
+  await expect(page.locator("#catch")).toContainText("It didn't change the test");
+  await page.getByRole("button", { name: /The edit makes sense/ }).click();
+  await expect(page.locator("#catch")).toContainText("exactly which lines it replaces");
 });
 
-test("the stage machine is read from the backend", async ({ page }) => {
-  await enter(page);
-  const stages = page.locator("#stages li");
-  await expect(stages).toHaveCount(7);
-  await expect(page.locator("#stages")).toContainText("verify");
-});
+test("pick a bug, fix it, and read why an answer was refused", async ({ page }) => {
+  await open(page);
 
-test("open a defect, run it, and inspect why a candidate was refused", async ({ page }) => {
-  await enter(page);
-
-  await page.getByTestId("defect-dev-off_by_one-001").click();
+  await page.getByTestId("bug-dev-off_by_one-001").click();
   await page.getByTestId("run").click();
 
-  // A terminal decision, however it turns out.
-  const decision = page.locator("#live").getByText(
-    /FIX_VERIFIED|NO_VERIFIED_FIX|ALL_GATED|TIMEOUT|ERROR/,
-  );
-  await expect(decision.first()).toBeVisible({ timeout: 100_000 });
+  const outcome = page
+    .locator("#try")
+    .getByRole("heading", {
+      name: /Fixed, and proven|Nothing worked|Every attempt was rejected|Ran out of time|Something went wrong/,
+    });
+  await expect(outcome).toBeVisible({ timeout: 100_000 });
 
-  // Every stage reports a real duration.
+  // Every step of the run reported that it finished.
   await expect(page.locator('[data-stage="verify"][data-state="done"]')).toBeVisible();
 
-  // The test-editing candidate must be present and must name its gate.
-  const cheat = page.getByTestId("candidate-r1-testedit");
+  // The attempt that tried to edit the test must say so, in plain words.
+  const cheat = page.getByTestId("attempt-r1-testedit");
   await expect(cheat).toBeVisible();
-  await expect(cheat).toContainText("rejected by no_test_edits");
+  await expect(cheat).toContainText("Rejected before testing");
+  await expect(cheat).toContainText("it didn't change the test");
 
   await cheat.getByRole("button").first().click();
-  await expect(cheat).toContainText("rejected here");
-  await expect(cheat).toContainText("No container was started");
-
-  // The out-of-scope candidate is refused by a different gate.
-  await expect(page.getByTestId("candidate-r1-scope")).toContainText("rejected by scope");
+  await expect(cheat).toContainText("Stopped here");
+  await expect(cheat).toContainText("never made it to the sandbox");
 });
 
-test("the page carries its own caveats", async ({ page }) => {
-  await enter(page);
-  await expect(page.locator("#limits")).toContainText("synthetic");
-  await expect(page.locator("#limits")).toContainText("fake_solve reads the answer key");
+test("results are described in plain words", async ({ page }) => {
+  await open(page);
+  await expect(page.locator("#results")).toContainText("tried to change the test");
+  await expect(page.locator("#results")).toContainText("got through");
+});
+
+test("the page states what it does not prove", async ({ page }) => {
+  await open(page);
+  await expect(page.locator("#limits")).toContainText("The bugs were planted on purpose");
+  await expect(page.locator("#limits")).toContainText("What 'proven' actually means here");
+});
+
+test("it is usable with a keyboard", async ({ page }) => {
+  await open(page);
+  await page.keyboard.press("Tab");
+  await expect(page.locator(".skip-link")).toBeFocused();
 });
 
 test("it is usable at phone width", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await enter(page);
-  await expect(page.getByRole("heading", { name: /Repair a defect/i })).toBeVisible();
+  await open(page);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );

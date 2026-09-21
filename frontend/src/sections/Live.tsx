@@ -3,214 +3,210 @@ import { useQuery } from "@tanstack/react-query";
 import { api, STAGES, type Defect } from "../api";
 import { useHealth } from "../lib/health";
 import { useRunLifecycle } from "../lib/useRun";
-import { CandidateCard } from "../components/CandidateCard";
+import { categoryLabel, DIFFICULTY, outcomeOf, STEP_BY_NAME } from "../lib/labels";
+import { AttemptCard } from "../components/AttemptCard";
 import { Section, Tag } from "../components/Section";
 
-function StageTicker({
-  states,
-  timings,
-}: {
-  states: Record<string, string>;
-  timings: Record<string, number>;
-}) {
+function Progress({ states }: { states: Record<string, string> }) {
+  const done = STAGES.filter((stage) => states[stage] === "done").length;
+  const running = STAGES.find((stage) => states[stage] === "running");
+  const current = running ? STEP_BY_NAME.get(running) : null;
+
   return (
-    <ol className="grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4 lg:grid-cols-7">
-      {STAGES.map((stage) => {
-        const state = states[stage] ?? "pending";
-        return (
-          <li
-            key={stage}
-            data-stage={stage}
-            data-state={state}
-            className={`bg-ink px-3 py-4 ${state === "running" ? "animate-pulse" : ""}`}
-          >
-            <div
-              className={`font-mono text-[11px] ${
-                state === "done" ? "text-acid" : state === "running" ? "text-bone" : "text-muted/50"
+    <div>
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="text-[15px] text-body">
+          {current ? current.title : done === STAGES.length ? "Finished." : "Starting…"}
+        </p>
+        <span className="text-[13px] text-muted tabular-nums">
+          {done} of {STAGES.length}
+        </span>
+      </div>
+      <ol className="mt-3 flex gap-1" aria-label="Progress through the run">
+        {STAGES.map((stage) => {
+          const state = states[stage] ?? "pending";
+          return (
+            <li
+              key={stage}
+              data-stage={stage}
+              data-state={state}
+              title={STEP_BY_NAME.get(stage)?.title ?? stage}
+              className={`h-1.5 flex-1 rounded-full ${
+                state === "done"
+                  ? "bg-acid"
+                  : state === "running"
+                    ? "animate-pulse bg-bone"
+                    : "bg-line"
               }`}
-            >
-              {stage}
-            </div>
-            <div className="mt-1 font-mono text-[10px] text-muted tabular-nums">
-              {timings[stage] !== undefined
-                ? `${timings[stage].toFixed(0)} ms`
-                : state === "running"
-                  ? "running"
-                  : "—"}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+            />
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
 export function Live() {
   const [set, setSet] = useState<"dev" | "holdout">("dev");
-  const [chosen, setChosen] = useState<string>("dev-off_by_one-001");
-  const [confirmHoldout, setConfirmHoldout] = useState(false);
+  const [chosen, setChosen] = useState("dev-off_by_one-001");
 
   const health = useHealth();
   const canRun = health.data?.mutations_enabled ?? false;
   const { run, live, stageStates, start, cancel } = useRunLifecycle();
 
-  const { data: defects } = useQuery<Defect[]>({
+  const { data: bugs } = useQuery<Defect[]>({
     queryKey: ["defects", set],
     queryFn: () => api.defects(set),
   });
 
-  const selected = defects?.find((defect) => defect.defect_id === chosen);
-  const holdout = set === "holdout";
-  const blocked = holdout && !confirmHoldout;
+  const selected = bugs?.find((bug) => bug.defect_id === chosen);
+  const outcome = run ? outcomeOf(run.decision, run.status) : null;
+  const worked = run?.candidates.filter((attempt) => attempt.eligible).length ?? 0;
 
   return (
     <Section
-      id="live"
-      index="03"
-      title="Pick a defect. Watch it get refused."
-      lead={
-        <>
-          This runs against the live backend on this machine. In <code className="font-mono text-bone">fake</code> mode the
-          three candidates are built to be rejected &mdash; that is what makes the harness testable
-          without a key.
-        </>
-      }
+      id="try"
+      title="Try it yourself"
+      lead="Pick a bug and watch the whole thing happen. It takes about five seconds, and it runs on this machine — nothing is pre-recorded."
     >
       <div className="space-y-8">
-        <div className="flex flex-wrap items-center gap-2">
-          {(["dev", "holdout"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => {
-                setSet(option);
-                setConfirmHoldout(false);
-              }}
-              className={`h-11 px-4 font-mono text-xs transition-colors ${
-                set === option
-                  ? "bg-bone text-ink"
-                  : "border border-line text-muted hover:text-bone"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-          {holdout && (
-            <Tag tone="reject">running a holdout fixture is recorded with its config hash</Tag>
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[14px] text-muted">Show:</span>
+            {(
+              [
+                ["dev", "Practice bugs"],
+                ["holdout", "Held-back bugs"],
+              ] as const
+            ).map(([option, label]) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setSet(option)}
+                aria-pressed={set === option}
+                className={`h-10 rounded-lg px-4 text-[14px] transition ${
+                  set === option
+                    ? "bg-bone text-ink"
+                    : "border border-line text-body hover:border-bone/40"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {set === "holdout" && (
+            <p className="mt-3 max-w-2xl text-[14px] text-body">
+              These are kept aside and only used to measure. Looking at how they fail and then
+              tweaking the system would quietly turn honest measurement into wishful thinking, so
+              every run of these is recorded.
+            </p>
           )}
         </div>
 
-        <div className="grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-          {(defects ?? []).map((defect) => {
-            const active = defect.defect_id === chosen;
-            return (
-              <button
-                key={defect.defect_id}
-                type="button"
-                onClick={() => setChosen(defect.defect_id)}
-                data-testid={`defect-${defect.defect_id}`}
-                className={`bg-ink px-4 py-4 text-left transition-colors ${
-                  active ? "bg-raised" : "hover:bg-raised"
-                }`}
-              >
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className={`font-mono text-[11px] ${active ? "text-acid" : "text-bone"}`}
-                  >
-                    {defect.category}
-                  </span>
-                  <span className="ml-auto font-mono text-[10px] text-muted">
-                    {defect.difficulty}
-                  </span>
-                </div>
-                <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-muted">
-                  {defect.summary}
-                </p>
-                {defect.last_decision && (
-                  <p className="mt-2 font-mono text-[10px] text-muted/70">
-                    last: {defect.last_decision}
-                  </p>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        <fieldset>
+          <legend className="text-[14px] text-muted">Choose a bug</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {(bugs ?? []).map((bug) => {
+              const active = bug.defect_id === chosen;
+              return (
+                <button
+                  key={bug.defect_id}
+                  type="button"
+                  onClick={() => setChosen(bug.defect_id)}
+                  aria-pressed={active}
+                  data-testid={`bug-${bug.defect_id}`}
+                  className={`rounded-xl border p-4 text-left transition ${
+                    active ? "border-acid/60 bg-acid/5" : "border-line hover:border-bone/30"
+                  }`}
+                >
+                  <div className="flex items-baseline gap-2">
+                    <span className={`font-medium ${active ? "text-acid" : "text-bone"}`}>
+                      {categoryLabel(bug.category)}
+                    </span>
+                    <span className="ml-auto text-[13px] text-muted">
+                      {DIFFICULTY[bug.difficulty] ?? bug.difficulty}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[14px] text-body">{bug.summary}</p>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
 
         <div className="flex flex-wrap items-center gap-4">
           {!canRun ? (
-            <p className="text-sm text-muted">
-              This deployment is read&#8209;only. Runs shown were recorded in advance, and the
-              server refuses every mutating request with a 403.
+            <p className="text-[15px] text-body">
+              This copy is read-only, so the run button isn&rsquo;t available here.
             </p>
-          ) : blocked ? (
-            <button
-              type="button"
-              onClick={() => setConfirmHoldout(true)}
-              className="h-14 border border-reject/50 px-6 font-display text-lg text-reject transition-colors hover:bg-reject/10"
-            >
-              I understand — unlock holdout
-            </button>
           ) : (
             <button
               type="button"
               data-testid="run"
               disabled={start.isPending || live}
               onClick={() => start.mutate(chosen)}
-              className="group inline-flex h-14 items-center gap-4 bg-acid px-7 font-display text-lg font-medium tracking-tight text-ink transition disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+              className="inline-flex h-12 items-center rounded-lg bg-acid px-6 font-medium text-ink transition hover:brightness-110 disabled:bg-line disabled:text-muted"
             >
-              {live ? "running…" : start.isPending ? "starting…" : `run ${chosen}`}
-              {!live && (
-                <span className="transition-transform duration-300 group-enabled:group-hover:translate-x-1">
-                  &rarr;
-                </span>
-              )}
+              {live ? "Working…" : start.isPending ? "Starting…" : "Fix this bug"}
             </button>
           )}
           {live && (
             <button
               type="button"
               onClick={cancel}
-              className="h-14 border border-line px-5 font-mono text-xs text-muted hover:text-bone"
+              className="h-12 rounded-lg border border-line px-5 text-[15px] text-body hover:border-bone/40"
             >
-              cancel
+              Stop
             </button>
           )}
-          {selected && (
-            <span className="min-w-0 font-mono text-[11px] break-all text-muted">
-              fails {selected.failing_test}
-            </span>
+          {selected && !live && !run && (
+            <p className="text-[14px] text-muted">
+              The AI will see the broken file and the test that fails.
+            </p>
           )}
         </div>
 
         {start.isError && (
-          <p className="font-mono text-xs text-reject">{String(start.error)}</p>
+          <p className="text-[15px] text-reject">
+            Couldn&rsquo;t start the run. Is the sandbox available?
+          </p>
         )}
 
-        {run && (
-          <div className="space-y-6 border-t border-line pt-8">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="min-w-0 font-mono text-xs break-all text-muted">{run.run_id}</span>
-              <Tag tone={run.decision === "FIX_VERIFIED" ? "acid" : run.decision ? "reject" : "muted"}>
-                {run.decision ?? run.status}
-              </Tag>
-              {run.queue_position > 0 && <Tag>queued #{run.queue_position}</Tag>}
-              {run.duration_seconds !== null && (
-                <span className="font-mono text-[11px] text-muted">
-                  {run.duration_seconds.toFixed(1)}s
-                </span>
+        {run && outcome && (
+          <div className="space-y-6 rounded-xl border border-line p-5 sm:p-6">
+            <Progress states={stageStates} />
+
+            <div className="border-t border-line pt-5">
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="font-display text-xl font-semibold tracking-tight">
+                  {outcome.title}
+                </h3>
+                <Tag tone={outcome.tone}>
+                  {run.candidates.length} attempt{run.candidates.length === 1 ? "" : "s"}
+                </Tag>
+                {run.duration_seconds !== null && (
+                  <span className="text-[13px] text-muted">
+                    {run.duration_seconds.toFixed(1)}s
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 max-w-2xl text-[15px] text-body">{outcome.detail}</p>
+              {worked > 0 && (
+                <p className="mt-2 max-w-2xl text-[15px] text-acid">
+                  The winning edit changed{" "}
+                  {run.candidates.find((a) => a.eligible)?.changed_lines} line
+                  {run.candidates.find((a) => a.eligible)?.changed_lines === 1 ? "" : "s"}.
+                </p>
               )}
             </div>
 
-            <p className="max-w-2xl text-sm leading-relaxed text-muted">
-              {run.decision_explanation}
-            </p>
-
-            <StageTicker states={stageStates} timings={run.stage_timings} />
-
             {run.candidates.length > 0 && (
-              <div className="space-y-2">
-                {run.candidates.map((candidate) => (
-                  <CandidateCard key={candidate.candidate_id} candidate={candidate} />
+              <div className="space-y-2 border-t border-line pt-5">
+                <p className="text-[13px] tracking-wide text-muted uppercase">
+                  What the AI suggested
+                </p>
+                {run.candidates.map((attempt, index) => (
+                  <AttemptCard key={attempt.candidate_id} attempt={attempt} index={index} />
                 ))}
               </div>
             )}
