@@ -324,6 +324,18 @@ Each run has a stable ID, configuration hash, model identity, stage timings, usa
 - The target application is a compact, pure-Python benchmark. Results do not establish performance on arbitrary production repositories.
 - Interrupted runs are not resumed. A new run starts from a clean fixture snapshot, which keeps decisions reproducible and avoids ambiguous half-applied state.
 
+## Runtime prerequisites
+
+| Runtime | Role | Source of configuration |
+|---|---|---|
+| Python 3.12 | Backend, target tests, fixture/evaluation scripts | `requirements.in`, `requirements.lock.txt` |
+| Docker | Candidate and baseline verification | `docker/verifier.Dockerfile` |
+| Node 24 | Frontend build and browser tests | `frontend/package.json` |
+| SQLite | Durable run history | `runtime/fixproof.sqlite` |
+| Git | Safe patch application in disposable workspaces | Host executable and verifier workflow |
+
+The backend can start in offline fake mode, but a repair run still requires the verifier image unless the code path is replaced in tests with an injected verifier.
+
 ## 11. Important extension points
 
 - Add a model provider by implementing the `ModelClient` protocol and selecting it in `build_model_client`.
